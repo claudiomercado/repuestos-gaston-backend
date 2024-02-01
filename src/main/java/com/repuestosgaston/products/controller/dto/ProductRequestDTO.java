@@ -1,17 +1,13 @@
 package com.repuestosgaston.products.controller.dto;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.repuestosgaston.products.model.CategoryEntity;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ProductRequestDTO implements Serializable{
-	private static final long serialVersionUID = 1L; 
+public class ProductRequestDTO {
 	                                         
 	@JsonProperty("name")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,8 +21,11 @@ public class ProductRequestDTO implements Serializable{
 	@JsonProperty("stock")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String stock;
+	@JsonProperty("bar_code")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Integer barCode;
 	@JsonProperty("category")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private CategoryEntity category;
+	private CategoryRequestDTO category;
 	
 }

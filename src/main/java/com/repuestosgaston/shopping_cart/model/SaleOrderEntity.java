@@ -1,6 +1,6 @@
 package com.repuestosgaston.shopping_cart.model;
 
-import com.repuestosgaston.shopping_cart.model.enums.SaleStatusEnum;
+import com.repuestosgaston.shopping_cart.model.enums.SaleOrderStatusEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,7 +36,7 @@ public class SaleOrderEntity {
 	private String description;
 	@Column(name = "sale_status")
 	@Enumerated(EnumType.STRING)
-	private SaleStatusEnum saleStatus;
+	private SaleOrderStatusEnum saleStatus;
 	@OneToOne(fetch = FetchType.LAZY)
 	private ShoppingCartEntity shoppingCart;
 	

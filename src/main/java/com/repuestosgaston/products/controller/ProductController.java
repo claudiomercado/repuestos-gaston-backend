@@ -1,14 +1,12 @@
 package com.repuestosgaston.products.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +32,7 @@ public class ProductController {
 		this.productService = productService;
 	}
 
-	@GetMapping(path = "/")
+	@GetMapping(path = "/getAll")
 	public ResponseEntity<Page<ProductResponseDTO>> getAllProduct(
 			@RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "100") int size,
@@ -49,8 +47,8 @@ public class ProductController {
 		}		
 	}
 	
-	@GetMapping(path = "/{productId}")
-	public ResponseEntity<ProductResponseDTO> getProductById(Long productId){
+	@GetMapping(path = "/getById/{productId}")
+	public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("productId")Long productId){
 		try {
 			return ResponseEntity.ok().body(productService.getProductById(productId));
 		} catch (Exception e) {
@@ -81,10 +79,10 @@ public class ProductController {
 		}		
 	}
 	
-	@PutMapping(path = "/")
-	public ResponseEntity<ProductEntity> updateProduct(@RequestBody ProductEntity product){
+	@PutMapping(path = "/{product_id}")
+	public ResponseEntity<ProductEntity> updateProduct(@PathVariable Long product_id,@RequestBody ProductRequestDTO productDTO){
 		try {
-			productService.updateProduct(product);
+			productService.updateProduct(product_id,productDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (Exception e) {
 			log.error(String.format("ProductController.updateProduct - Failed with message [%s]", e.getMessage()));
@@ -92,8 +90,8 @@ public class ProductController {
 		}		
 	}
 	
-	@DeleteMapping(path = "/")
-	public ResponseEntity<ProductEntity> deleteProductById(Long id){
+	@DeleteMapping(path = "/{id}")
+	public ResponseEntity<ProductEntity> deleteProductById(@PathVariable("id")Long id){
 		try {
 			productService.deleteProductById(id);
 			return ResponseEntity.status(HttpStatus.OK).build();

@@ -1,7 +1,6 @@
 package com.repuestosgaston.products.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -36,8 +35,8 @@ public class ProductService {
 	}
 	
 	public ProductResponseDTO getProductById(Long productId) {
-		var productEntity = productRepository.findById(productId);
-		if (!productEntity.isPresent()) {
+		Optional<ProductEntity> productEntity = productRepository.findById(productId);
+		if (productEntity.isEmpty()) {
 			throw new IllegalArgumentException(
 					String.format("Product [%s] not found", productId));
 		}
@@ -50,9 +49,23 @@ public class ProductService {
 		productRepository.save(productEntity);
 	}
 
-	public void updateProduct(ProductEntity product) {
-		//Logica para modificar el producto en base al producto que recibe
-		productRepository.save(product);
+	public void updateProduct(Long product_id,ProductRequestDTO productDTO) {
+		Optional<ProductEntity> productEntity = productRepository.findById(product_id);
+		if (productEntity.isEmpty()) {
+			throw new IllegalArgumentException(
+					String.format("Product [%s] not found", product_id));
+		}
+		
+		productEntity.get().setName(productDTO.getName() != null ? productDTO.getName() : productEntity.get().getName());
+		productEntity.get().setDescription(productDTO.getDescription() != null ? productDTO.getDescription() : productEntity.get().getDescription());
+		productEntity.get().setPrice(productDTO.getPrice() != null ? productDTO.getPrice() : productEntity.get().getPrice());
+		productEntity.get().setStock(productDTO.getStock() != null ? productDTO.getStock() : productEntity.get().getStock());
+		productEntity.get().setBarCode(productDTO.getBarCode() != null ? productDTO.getBarCode() : productEntity.get().getBarCode());
+//		productEntity.get().setImage(productDTO.getImage() != null ? productDTO.getImage() : productEntity.get().getImage());		
+//		productEntity.get().setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : productEntity.get().getCategory());
+//		modelMapper.map(productDTO, ProductEntity.class);
+		
+		productRepository.save(productEntity.get());
 	}
 	
 	public void deleteProductById(Long id) {

@@ -13,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CategoryReponseDTO {
 	
+	@JsonProperty("category_id")
 	private Long id;
 	@JsonProperty("name")
 	private String name;

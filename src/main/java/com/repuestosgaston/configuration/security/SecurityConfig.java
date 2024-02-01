@@ -36,14 +36,17 @@ public class SecurityConfig {
 	//Configuracion filtros de cadena
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, AuthenticationManager authenticationManager) throws Exception{
+		
 		JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(jwtUtils);
 		authenticationFilter.setAuthenticationManager(authenticationManager);
-		
 		
 		return httpSecurity
 				.csrf(config -> config.disable())
 				.authorizeHttpRequests(auth ->{
-					auth.requestMatchers("/helloSecured").permitAll();
+					auth.requestMatchers("/v1/user/createUser").permitAll();
+					auth.requestMatchers("/v1/product/getAll").permitAll();
+					auth.requestMatchers("/v1/product/getById/**").permitAll();
+					auth.requestMatchers("/login").permitAll();
 					auth.anyRequest().authenticated();
 				})
 				.sessionManagement(session -> {
@@ -53,17 +56,6 @@ public class SecurityConfig {
 				.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
-	
-	//Crea un usuario de aplicacion (para pruebas)
-//	@Bean
-//	UserDetailsService userDetailsService () {
-//		InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
-//		userDetailsManager.createUser(User.withUsername("cmercado")
-//				.password("cmercado")
-//				.roles()
-//				.build());
-//		return userDetailsManager;
-//	}
 	
 	//Crea o no una forma de encriptacion 
 	@Bean

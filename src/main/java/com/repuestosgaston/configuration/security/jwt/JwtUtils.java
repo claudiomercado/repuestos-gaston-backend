@@ -16,9 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+//Clase de utilidad para firmar token
 public class JwtUtils {
-	
-	//Clase de utilidad para firmar token
+		
 	@Value("${jwt.secret.key}")
 	private String secretKey;
 	
