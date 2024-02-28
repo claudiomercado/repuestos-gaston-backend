@@ -51,9 +51,9 @@ public class ProductController {
 	public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("productId")Long productId){
 		try {
 			return ResponseEntity.ok().body(productService.getProductById(productId));
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("ProductController.getProductById - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 	
@@ -80,13 +80,13 @@ public class ProductController {
 	}
 	
 	@PutMapping(path = "/{product_id}")
-	public ResponseEntity<ProductEntity> updateProduct(@PathVariable Long product_id,@RequestBody ProductRequestDTO productDTO){
+	public ResponseEntity<ProductEntity> updateProduct(@PathVariable Long product_id,@RequestBody ProductRequestDTO productRequestDTO){
 		try {
-			productService.updateProduct(product_id,productDTO);
+			productService.updateProduct(product_id,productRequestDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("ProductController.updateProduct - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 	
@@ -95,9 +95,9 @@ public class ProductController {
 		try {
 			productService.deleteProductById(id);
 			return ResponseEntity.status(HttpStatus.OK).build();
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("ProductController.deleteProductById - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 	

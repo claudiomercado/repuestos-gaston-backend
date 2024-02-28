@@ -3,6 +3,7 @@ package com.repuestosgaston.shopping_cart.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,10 +58,11 @@ public class ShoppingCartController {
 		}		
 	}
 	
-	@PostMapping(path = "/")
-	public ResponseEntity<Object> createShoppingCart(@RequestBody ShoppingCartRequestDTO shoppingCartRequestDTO){
+	@PostMapping(path = "{idProduct}/addProduct/{amount}")
+	public ResponseEntity<Object> addProduct(@PathVariable(name = "idProduct") Long idProduct, @PathVariable(name = "amount") Integer amount){
 		try {
-			shoppingCartService.createShoppingCart(shoppingCartRequestDTO);
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			shoppingCartService.addProducts(username,idProduct,amount);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (Exception e) {
 			log.error(String.format("ShoppingCartController.createShoppingCart - Failed with message [%s]", e.getMessage()));

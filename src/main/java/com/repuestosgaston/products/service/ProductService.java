@@ -49,18 +49,18 @@ public class ProductService {
 		productRepository.save(productEntity);
 	}
 
-	public void updateProduct(Long product_id,ProductRequestDTO productDTO) {
+	public void updateProduct(Long product_id,ProductRequestDTO productRequestDTO) {
 		Optional<ProductEntity> productEntity = productRepository.findById(product_id);
 		if (productEntity.isEmpty()) {
 			throw new IllegalArgumentException(
 					String.format("Product [%s] not found", product_id));
 		}
 		
-		productEntity.get().setName(productDTO.getName() != null ? productDTO.getName() : productEntity.get().getName());
-		productEntity.get().setDescription(productDTO.getDescription() != null ? productDTO.getDescription() : productEntity.get().getDescription());
-		productEntity.get().setPrice(productDTO.getPrice() != null ? productDTO.getPrice() : productEntity.get().getPrice());
-		productEntity.get().setStock(productDTO.getStock() != null ? productDTO.getStock() : productEntity.get().getStock());
-		productEntity.get().setBarCode(productDTO.getBarCode() != null ? productDTO.getBarCode() : productEntity.get().getBarCode());
+		productEntity.get().setName(productRequestDTO.getName() != null ? productRequestDTO.getName() : productEntity.get().getName());
+		productEntity.get().setDescription(productRequestDTO.getDescription() != null ? productRequestDTO.getDescription() : productEntity.get().getDescription());
+		productEntity.get().setPrice(productRequestDTO.getPrice() != null ? productRequestDTO.getPrice() : productEntity.get().getPrice());
+		productEntity.get().setStock(productRequestDTO.getStock() != null ? productRequestDTO.getStock() : productEntity.get().getStock());
+		productEntity.get().setBarCode(productRequestDTO.getBarCode() != null ? productRequestDTO.getBarCode() : productEntity.get().getBarCode());
 //		productEntity.get().setImage(productDTO.getImage() != null ? productDTO.getImage() : productEntity.get().getImage());		
 //		productEntity.get().setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : productEntity.get().getCategory());
 //		modelMapper.map(productDTO, ProductEntity.class);
@@ -69,6 +69,11 @@ public class ProductService {
 	}
 	
 	public void deleteProductById(Long id) {
-		productRepository.deleteById(id);
+		Optional<ProductEntity> productEntity = productRepository.findById(id);
+		if (productEntity.isEmpty()) {
+			throw new IllegalArgumentException(
+					String.format("Product [%s] not found", id)); 
+		}
+		productRepository.deleteById(productEntity.get().getId());
 	}
 }

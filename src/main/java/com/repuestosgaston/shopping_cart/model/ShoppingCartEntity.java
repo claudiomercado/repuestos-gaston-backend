@@ -36,6 +36,7 @@ public class ShoppingCartEntity {
 	@Column(name = "total_price")
 	private Double totalPrice;
 	@Column(name="number_cart")
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer numberCart;
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "shopping_cart_product",

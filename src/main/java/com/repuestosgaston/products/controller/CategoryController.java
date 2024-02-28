@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class CategoryController {
 		this.categoryService = categoryService;
 	}
 	
-	@GetMapping(path = "/")
+	@GetMapping(path = "/getAll")
 	public ResponseEntity<Page<CategoryReponseDTO>> getAllCategory(
 			@RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "100") int size,
@@ -47,13 +48,13 @@ public class CategoryController {
 		}		
 	}
 	
-	@GetMapping(path = "/{categoryId}")
-	public ResponseEntity<CategoryReponseDTO> getCategoryById(Long categoryId){
+	@GetMapping(path = "/getById/{categoryId}")
+	public ResponseEntity<CategoryReponseDTO> getCategoryById(@PathVariable("categoryId") Long categoryId){
 		try {
 			return ResponseEntity.ok().body(categoryService.getCategoryById(categoryId));
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("CategoryController.getCategoryById - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 	
@@ -68,25 +69,25 @@ public class CategoryController {
 		}		
 	}
 	
-	@PutMapping(path = "/")
-	public ResponseEntity<CategoryEntity> updateCategory(@RequestBody CategoryEntity categoryEntity){
+	@PutMapping(path = "/{category_id}")
+	public ResponseEntity<CategoryEntity> updateCategory(@PathVariable("category_id") Long category_id,@RequestBody CategoryRequestDTO categoryRequestDTO){
 		try {
-			categoryService.updateCategory(categoryEntity);
+			categoryService.updateCategory(category_id,categoryRequestDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("CategoryController.updateCategory - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 	
-	@DeleteMapping(path = "/")
-	public ResponseEntity<CategoryEntity> deleteCategoryById(Long categoryId){
+	@DeleteMapping(path = "/{category_id}")
+	public ResponseEntity<CategoryEntity> deleteCategoryById(@PathVariable("category_id") Long categoryId){
 		try {
 			categoryService.deleteCategoryById(categoryId);
 			return ResponseEntity.status(HttpStatus.OK).build();
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("CategoryController.deleteCategoryById - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 }

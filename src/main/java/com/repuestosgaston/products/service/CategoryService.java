@@ -1,5 +1,7 @@
 package com.repuestosgaston.products.service;
 
+import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,8 +35,8 @@ public class CategoryService {
 	}
 	
 	public CategoryReponseDTO getCategoryById(Long categoryId) {
-		var categoryEntity = categoryRepository.findById(categoryId);
-		if (!categoryEntity.isPresent()) {
+		Optional<CategoryEntity> categoryEntity = categoryRepository.findById(categoryId);
+		if (categoryEntity.isEmpty()) {
 			throw new IllegalArgumentException(
 					String.format("Category [%s] not found", categoryId));
 		}
@@ -47,13 +49,25 @@ public class CategoryService {
 		categoryRepository.save(categoryEntity);
 	}
 
-	public void updateCategory(CategoryEntity categoryEntity) {
+	public void updateCategory(Long category_id,CategoryRequestDTO categoryRequestDTO) {
+		Optional<CategoryEntity> categoryEntity = categoryRepository.findById(category_id);
+		if (categoryEntity.isEmpty()) {
+			throw new IllegalArgumentException(
+					String.format("Category [%s] not found", category_id));
+		}
+		
+		categoryEntity.get().setName(categoryRequestDTO.getName() != null ? categoryRequestDTO.getName() : categoryEntity.get().getName());
 		//Logica para modificar la categoria en base a la categoria que recibe
-		categoryRepository.save(categoryEntity);
+		categoryRepository.save(categoryEntity.get());
 	}
 	
 	public void deleteCategoryById(Long categoryId) {
-		categoryRepository.deleteById(categoryId);
+		Optional<CategoryEntity> categoryEntity = categoryRepository.findById(categoryId);
+		if (categoryEntity.isEmpty()) {
+			throw new IllegalArgumentException(
+					String.format("Category [%s] not found", categoryId));
+		}
+		categoryRepository.deleteById(categoryEntity.get().getId());
 	}
 	
 }

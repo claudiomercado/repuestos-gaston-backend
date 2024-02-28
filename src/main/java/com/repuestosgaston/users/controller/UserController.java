@@ -71,14 +71,14 @@ public class UserController {
 	}
 	
 	@PutMapping(path = "/")
-	public ResponseEntity<UserEntity> updateUser(@RequestBody UserRequestDTO userDTO){
+	public ResponseEntity<UserEntity> updateUser(@RequestBody UserRequestDTO userRequestDTO){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			userService.updateUser(username, userDTO);
+			userService.updateUser(username, userRequestDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("UserController.updateUser - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 	
@@ -88,9 +88,9 @@ public class UserController {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
 			userService.deleteUser(username);
 			return ResponseEntity.status(HttpStatus.OK).build();
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			log.error(String.format("UserController.deleteUserById - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 }
