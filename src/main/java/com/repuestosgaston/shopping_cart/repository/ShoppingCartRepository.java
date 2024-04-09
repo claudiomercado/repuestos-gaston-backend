@@ -9,5 +9,6 @@ import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
 
 @Repository
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCartEntity, Long>{
+	
 	Page<ShoppingCartEntity> findAll(Pageable pageable);
 }

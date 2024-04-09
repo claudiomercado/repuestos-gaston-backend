@@ -1,11 +1,9 @@
 package com.repuestosgaston.users.controller.dto;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartRequestDTO;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.repuestosgaston.shopping_cart.controller.dto.RequestAddProductDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartRequestDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartResponseDTO;
 import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
@@ -25,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @CrossOrigin
 @RestController
-@RequestMapping(value = "/v1/shopping_cart")
+@RequestMapping(value = "/v1/carts")
 public class ShoppingCartController {
 	private final ShoppingCartService shoppingCartService;
 
@@ -48,8 +49,8 @@ public class ShoppingCartController {
 		}		
 	}
 	
-	@GetMapping(path = "/{shoppingCartId}")
-	public ResponseEntity<ShoppingCartResponseDTO> getShoppingCartById(Long shoppingCartId){
+	@GetMapping(path = "/{id}")
+	public ResponseEntity<ShoppingCartResponseDTO> getShoppingCartById(@PathVariable("id")Long shoppingCartId){
 		try {
 			return ResponseEntity.ok().body(shoppingCartService.getShoppingCartById(shoppingCartId));
 		} catch (Exception e) {
@@ -58,25 +59,14 @@ public class ShoppingCartController {
 		}		
 	}
 	
-	@PostMapping(path = "{idProduct}/addProduct/{amount}")
-	public ResponseEntity<Object> addProduct(@PathVariable(name = "idProduct") Long idProduct, @PathVariable(name = "amount") Integer amount){
+	@PostMapping(path = "/addProduct")
+	public ResponseEntity<Object> addProduct(@RequestBody RequestAddProductDTO requestAddProductDTO){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			shoppingCartService.addProducts(username,idProduct,amount);
+			shoppingCartService.addProducts(username, requestAddProductDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (Exception e) {
 			log.error(String.format("ShoppingCartController.createShoppingCart - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}		
-	}
-	
-	@PutMapping(path = "/{shoppingCart_id}")
-	public ResponseEntity<ShoppingCartEntity> updateShoppingCart(@PathVariable Long shoppingCart_id,@RequestBody ShoppingCartRequestDTO shoppingCart){
-		try {
-			shoppingCartService.updateShoppingCart(shoppingCart_id,shoppingCart);
-			return ResponseEntity.status(HttpStatus.CREATED).build();
-		} catch (Exception e) {
-			log.error(String.format("ShoppingCartController.updateShoppingCart - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}		
 	}

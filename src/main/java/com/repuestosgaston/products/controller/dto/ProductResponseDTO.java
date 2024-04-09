@@ -22,7 +22,7 @@ public class ProductResponseDTO {
 	@JsonProperty("price")
 	private Double price;
 	@JsonProperty("stock")
-	private String stock;
+	private Integer stock;
 	@JsonProperty("category")
 	private CategoryReponseDTO categoryRespose;
 }

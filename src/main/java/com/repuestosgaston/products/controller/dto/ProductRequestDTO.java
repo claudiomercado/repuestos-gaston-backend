@@ -20,7 +20,7 @@ public class ProductRequestDTO {
 	private Double price;
 	@JsonProperty("stock")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private String stock;
+	private Integer stock;
 	@JsonProperty("bar_code")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Integer barCode;

@@ -8,18 +8,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.repuestosgaston.products.model.ProductEntity;
 import com.repuestosgaston.products.repository.ProductRepository;
+import com.repuestosgaston.shopping_cart.controller.dto.RequestAddProductDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartRequestDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartResponseDTO;
 import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
 import com.repuestosgaston.shopping_cart.repository.ShoppingCartRepository;
-import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.repository.UserRepository;
-import com.repuestosgaston.users.service.UserService;
 
 @Service
 public class ShoppingCartService {
@@ -48,7 +46,7 @@ public class ShoppingCartService {
 
 	//Ver si sigue
 	public ShoppingCartResponseDTO getShoppingCartById(Long shoppingCartId) {
-		var shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId);
+		Optional<ShoppingCartEntity> shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId);
 		if (!shoppingCartEntity.isPresent()) {
 			throw new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCartId));
 		}
@@ -56,43 +54,41 @@ public class ShoppingCartService {
 	}
 	
 	public ShoppingCartEntity createShoppingCart() {
-//		var userEntity = userRepository.findByUsername(username);
-//		if (!userEntity.isPresent()) {
-//				throw new IllegalArgumentException(String.format("El usuario '[%s]' no existe", username));
-//			}
 		ShoppingCartEntity shoppingCartEntity = new ShoppingCartEntity();
 		shoppingCartEntity.setTotalPrice(0.0);
-//		shoppingCartEntity.setUser(userEntity.get());
+		//shoppingCartEntity.setNumberCart(1471);
 		
 		return shoppingCartRepository.save(shoppingCartEntity);
 	}
 
-	public void addProducts(String username,Long idProduct, Integer amount) {
-		var userEntity = userRepository.findByUsername(username);
-		if (!userEntity.isPresent()) {
-			throw new IllegalArgumentException(String.format("El usuario '[%s]' no existe", username));
-		}
-		Optional<ShoppingCartEntity> cartEntity = shoppingCartRepository.findById(userEntity.get().getCart().getId());
+	public void addProducts(String username,RequestAddProductDTO requestAddProductDTO) {
+		var userEntity = userRepository.findByUsername(username)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
+
+		var idCart = userEntity.getCart().getId();
+		Optional<ShoppingCartEntity> cartEntity = shoppingCartRepository.findById(idCart);
+
+		 var product = productRepository.findById(requestAddProductDTO.getIdProduct())
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Product [%s] not found", requestAddProductDTO.getIdProduct())));
 		
-		var product = productRepository.findById(idProduct);
-		if (!product.isPresent()) {
-			throw new IllegalArgumentException(String.format("El producto no existe"));
+		if (requestAddProductDTO.getAmount() < product.getStock()) {
+			throw new IllegalArgumentException(String.format("Insufficient amount [%s]",requestAddProductDTO.getAmount()));
 		}
-		
 		List<ProductEntity> products = cartEntity.get().getProducts();
 		
-		for (int i = 0; i < amount; i++) {
-			products.add(product.get());
+		for (int i = 0; i < requestAddProductDTO.getAmount(); i++) {
+			products.add(product);
 			}
+		//Descontar stock de productos llamando al servicio de productos
+		//Implementar misma funcionalidad pero para quitar productos del carrito
+		//Funcion que vacie el carrito
 		
-		cartEntity.get().setTotalPrice(addPrice(products));
-		cartEntity.get().setProducts(products);
-		
+		cartEntity.get().setTotalPrice(calculateTotalPrice(products));
+		cartEntity.get().setProducts(products);		
 		shoppingCartRepository.save(cartEntity.get());
-		
 	}
 
-	private Double addPrice(List<ProductEntity> products) {
+	private Double calculateTotalPrice(List<ProductEntity> products) {
 		Double totalPrice = 0.0;
 		for (ProductEntity productEntity : products) {
 			totalPrice += productEntity.getPrice();
@@ -100,16 +96,6 @@ public class ShoppingCartService {
 		return totalPrice;
 	}
 
-	public void updateShoppingCart(Long shoppingCart_id, ShoppingCartRequestDTO shoppingCart) {
-		ShoppingCartEntity shoppingCartEntity = shoppingCartRepository.findById(shoppingCart_id).get();
-		if (shoppingCartEntity == null) {
-			throw new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCart_id));
-		}
-
-		modelMapper.map(shoppingCart, ShoppingCartEntity.class);
-		// Logica para modificar el shoppingCart en base al shoppingCart que recibe
-		shoppingCartRepository.save(shoppingCartEntity);
-	}
 
 	public void deleteShoppingCartById(Long id) {
 		shoppingCartRepository.deleteById(id);

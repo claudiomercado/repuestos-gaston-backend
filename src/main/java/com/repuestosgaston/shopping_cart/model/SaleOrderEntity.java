@@ -32,11 +32,14 @@ public class SaleOrderEntity {
 	
 	@Column(name = "number_sale")
 	private Integer numberSale;
+	
 	@Column(name = "description")
 	private String description;
+	
 	@Column(name = "sale_status")
 	@Enumerated(EnumType.STRING)
 	private SaleOrderStatusEnum saleStatus;
+	
 	@OneToOne(fetch = FetchType.LAZY)
 	private ShoppingCartEntity shoppingCart;
 	

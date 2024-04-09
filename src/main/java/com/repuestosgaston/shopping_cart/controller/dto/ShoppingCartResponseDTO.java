@@ -25,6 +25,4 @@ public class ShoppingCartResponseDTO {
 	private Integer numberCart;
 	@JsonProperty("products")
 	private List<ProductResponseDTO> products;
-	@JsonProperty("user")
-	private UserEntity user;
 }

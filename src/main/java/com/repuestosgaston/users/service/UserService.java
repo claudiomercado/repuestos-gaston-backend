@@ -13,8 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
-import com.repuestosgaston.shopping_cart.repository.ShoppingCartRepository;
 import com.repuestosgaston.shopping_cart.service.ShoppingCartService;
 import com.repuestosgaston.users.controller.dto.UserRequestDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseDTO;
@@ -58,39 +56,71 @@ public class UserService {
 		return modelMapper.map(userEntity, UserResponseDTO.class);	
 	}
 
-	//Recibe un UserRequestDTO
 	public void createUser(UserRequestDTO userRequestDTO) {
-		UserEntity userEntity = modelMapper.map(userRequestDTO, UserEntity.class);
-
-		//rawPassword -> obtiene la contraseña sin decodificar
-		String rawPassword = userRequestDTO.getPassword(); // Asegúrate de obtener la contraseña del DTO
-		String encodedPassword = passwordEncoder.encode(rawPassword);
+		UserEntity userEntity = modelMapper.map(userRequestDTO, UserEntity.class);																											
+		
+		String password = userRequestDTO.getPassword();
+		String encodedPassword = passwordEncoder.encode(password);
+		userEntity.setPassword(encodedPassword);
 		
 		userEntity.setRoles(this.createRole());
-		userEntity.setCart(shoppingCartService.createShoppingCart());
-		//userEntity.setCart(shoppingCartService.createShoppingCart(userRequestDTO.getUsername()));
-	    userEntity.setPassword(encodedPassword);
-	    
+		userEntity.setCart(shoppingCartService.createShoppingCart());	    
 		userRepository.save(userEntity);
 	}
 
-	public void updateUser(String username, UserRequestDTO userRequestDTO) {
-		Optional<UserEntity> userEntity = userRepository.findByUsername(username);
-		if (userEntity.isEmpty()) {
+	public UserResponseDTO updateUser(String username, UserRequestDTO userRequestDTO) {
+		UserEntity userEntity = userRepository.findByUsername(username)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
+
+		validateFields(userEntity,userRequestDTO);
+		
+		updateFields(userEntity, userRequestDTO);
+			
+		UserEntity userEntity2 = userRepository.save(userEntity);
+		return modelMapper.map(userEntity2, UserResponseDTO.class);
+	}
+	
+	private void validateFields(UserEntity userEntity,UserRequestDTO userRequestDTO) {
+		String username = userRequestDTO.getUsername();
+		String email = userRequestDTO.getEmail();
+		String dni = userRequestDTO.getDni();
+		
+		if (userRepository.findByUsername(username).isPresent()) {
 			throw new IllegalArgumentException(
-					String.format("User [%s] not found", username));
-		}		
-		//Validar que el username,mail,dni que edita no coincida con ningun username de la base de datos
-		
-		userEntity.get().setEmail(userRequestDTO.getEmail() != null ? userRequestDTO.getEmail() : userEntity.get().getEmail());
-		userEntity.get().setUsername(userRequestDTO.getUsername() != null ? userRequestDTO.getUsername() : userEntity.get().getUsername());
-		userEntity.get().setPassword(userRequestDTO.getPassword() != null ? userRequestDTO.getPassword() : userEntity.get().getPassword());
-		userEntity.get().setName(userRequestDTO.getName() != null ? userRequestDTO.getName() : userEntity.get().getName());
-		userEntity.get().setSurname(userRequestDTO.getSurname() != null ? userRequestDTO.getSurname() : userEntity.get().getSurname());
-		userEntity.get().setDni(userRequestDTO.getDni() != null ? userRequestDTO.getDni() : userEntity.get().getDni());
-		userEntity.get().setBirthdate(userRequestDTO.getBirthdate() != null ? userRequestDTO.getBirthdate() : userEntity.get().getBirthdate());
-		
-		userRepository.save(userEntity.get());
+					String.format("Username existente"));
+		}
+		if (userRepository.findByEmail(email).isPresent()) {
+			throw new IllegalArgumentException(
+					String.format("Email existente"));
+		}
+		if (userRepository.findByDni(dni).isPresent()) {
+			throw new IllegalArgumentException(
+					String.format("DNI existente"));
+		}
+	}
+	
+	private void updateFields(UserEntity userEntity, UserRequestDTO userRequestDTO) {
+	    if (userRequestDTO.getEmail() != null) {
+	        userEntity.setEmail(userRequestDTO.getEmail());
+	    }
+	    if (userRequestDTO.getUsername() != null) {
+	        userEntity.setUsername(userRequestDTO.getUsername());
+	    }
+	    if (userRequestDTO.getPassword() != null) {
+	        userEntity.setPassword(userRequestDTO.getPassword());
+	    }
+	    if (userRequestDTO.getName() != null) {
+	        userEntity.setName(userRequestDTO.getName());
+	    }
+	    if (userRequestDTO.getSurname() != null) {
+	        userEntity.setSurname(userRequestDTO.getSurname());
+	    }
+	    if (userRequestDTO.getDni() != null) {
+	        userEntity.setDni(userRequestDTO.getDni());
+	    }
+	    if (userRequestDTO.getBirthdate() != null) {
+	        userEntity.setBirthdate(userRequestDTO.getBirthdate());
+	    }
 	}
 	
 	public void deleteUser(String username) {
@@ -98,6 +128,15 @@ public class UserService {
 		if (userEntity.isEmpty()) {
 			throw new IllegalArgumentException(
 					String.format("User [%s] not found", username));
+		}	
+		userRepository.deleteById(userEntity.get().getId());
+	}
+	
+	public void deleteUserById(Long userId) {
+		Optional<UserEntity> userEntity = userRepository.findById(userId);
+		if (userEntity.isEmpty()) {
+			throw new IllegalArgumentException(
+					String.format("User [%s] not found", userId));
 		}	
 		userRepository.deleteById(userEntity.get().getId());
 	}

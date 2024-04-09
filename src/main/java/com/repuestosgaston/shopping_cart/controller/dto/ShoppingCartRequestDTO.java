@@ -23,7 +23,4 @@ public class ShoppingCartRequestDTO {
 	@JsonProperty("products")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private List<ProductRequestDTO> products;
-	@JsonProperty("user")
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private UserEntity user;
 }

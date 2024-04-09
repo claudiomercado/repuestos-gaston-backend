@@ -25,10 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @CrossOrigin
 @RestController
-@RequestMapping(value = "/v1/user")
+@RequestMapping(value = "/v1/users")
 public class UserController {
+	
 	private final UserService userService;
-
 
 	public UserController(UserService userService) {
 		this.userService = userService;
@@ -49,8 +49,8 @@ public class UserController {
 		}		
 	}
 	
-	@GetMapping(path = "/{userId}")
-	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable("userId") Long userId){
+	@GetMapping(path = "/{id}")
+	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable("id") Long userId){
 		try {
 			return ResponseEntity.ok().body(userService.getUserById(userId));
 		} catch (IllegalArgumentException e) {
@@ -59,7 +59,7 @@ public class UserController {
 		}		
 	}
 	
-	@PostMapping(path = "/createUser")
+	@PostMapping(path = "/")
 	public ResponseEntity<Object> createUser(@RequestBody UserRequestDTO userRequestDTO){
 		try {
 			userService.createUser(userRequestDTO);
@@ -71,14 +71,14 @@ public class UserController {
 	}
 	
 	@PutMapping(path = "/")
-	public ResponseEntity<UserEntity> updateUser(@RequestBody UserRequestDTO userRequestDTO){
+	public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserRequestDTO userRequestDTO){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			userService.updateUser(username, userRequestDTO);
-			return ResponseEntity.status(HttpStatus.CREATED).build();
+			UserResponseDTO userEntity = userService.updateUser(username, userRequestDTO);
+			return ResponseEntity.status(HttpStatus.CREATED).body(userEntity);
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("UserController.updateUser - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}		
 	}
 	
@@ -87,6 +87,17 @@ public class UserController {
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
 			userService.deleteUser(username);
+			return ResponseEntity.status(HttpStatus.OK).build();
+		} catch (IllegalArgumentException e) {
+			log.error(String.format("UserController.deleteUserById - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}		
+	}
+	
+	@DeleteMapping(path = "/{id}")
+	public ResponseEntity<UserEntity> deleteUserById(@PathVariable("id") Long userId){
+		try {
+			userService.deleteUserById(userId);
 			return ResponseEntity.status(HttpStatus.OK).build();
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("UserController.deleteUserById - Failed with message [%s]", e.getMessage()));

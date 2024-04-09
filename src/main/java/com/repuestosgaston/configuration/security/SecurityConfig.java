@@ -53,7 +53,7 @@ public class SecurityConfig {
 //				.csrf(config -> config.disable())
 				.csrf().disable()
 				.authorizeHttpRequests(auth ->{
-					auth.requestMatchers(HttpMethod.POST,"/v1/user/createUser").permitAll();
+					auth.requestMatchers(HttpMethod.POST,"/v1/users/").permitAll();
 					auth.requestMatchers(HttpMethod.GET,"/v1/product/getAll").permitAll();
 					auth.requestMatchers(HttpMethod.GET,"/v1/product/getById/**").permitAll();
 					auth.requestMatchers(HttpMethod.POST,"/login").permitAll();
@@ -62,7 +62,6 @@ public class SecurityConfig {
 					try {
 						auth.and().cors().configurationSource(corsConfigurationSource());
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				})
