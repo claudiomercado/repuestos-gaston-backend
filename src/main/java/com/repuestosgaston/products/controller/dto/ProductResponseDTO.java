@@ -24,5 +24,7 @@ public class ProductResponseDTO {
 	@JsonProperty("stock")
 	private Integer stock;
 	@JsonProperty("category")
-	private CategoryReponseDTO categoryRespose;
+	private String category;
+	@JsonProperty("bar_code")
+	private Integer barCode;
 }

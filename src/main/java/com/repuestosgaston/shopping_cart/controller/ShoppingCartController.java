@@ -71,14 +71,14 @@ public class ShoppingCartController {
 		}		
 	}
 	
-	@DeleteMapping(path = "/")
-	public ResponseEntity<ShoppingCartEntity> deleteShoppingCartById(Long id){
-		try {
-			shoppingCartService.deleteShoppingCartById(id);
-			return ResponseEntity.status(HttpStatus.OK).build();
-		} catch (Exception e) {
-			log.error(String.format("ShoppingCartController.deleteShoppingCartById - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}		
-	}
+//	@DeleteMapping(path = "/")
+//	public ResponseEntity<ShoppingCartEntity> deleteShoppingCartById(Long id){
+//		try {
+//			shoppingCartService.deleteShoppingCartById(id);
+//			return ResponseEntity.status(HttpStatus.OK).build();
+//		} catch (Exception e) {
+//			log.error(String.format("ShoppingCartController.deleteShoppingCartById - Failed with message [%s]", e.getMessage()));
+//			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//		}		
+//	}
 }

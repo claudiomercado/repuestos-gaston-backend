@@ -1,5 +1,6 @@
 package com.repuestosgaston.products.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -11,7 +12,9 @@ import org.springframework.stereotype.Service;
 
 import com.repuestosgaston.products.controller.dto.ProductRequestDTO;
 import com.repuestosgaston.products.controller.dto.ProductResponseDTO;
+import com.repuestosgaston.products.converter.ProductEntityToProductResponseConverter;
 import com.repuestosgaston.products.model.ProductEntity;
+import com.repuestosgaston.products.repository.CategoryRepository;
 import com.repuestosgaston.products.repository.ProductRepository;
 
 @Service 
@@ -19,36 +22,53 @@ public class ProductService {
 	
 	private final ModelMapper modelMapper;
 	private final ProductRepository productRepository;
+	private final CategoryRepository categoryRepository;
+	private final ProductEntityToProductResponseConverter converter;
 	
-	public ProductService(ModelMapper modelMapper, ProductRepository productRepository) {
+	public ProductService(ModelMapper modelMapper, ProductRepository productRepository, CategoryRepository categoryRepository,ProductEntityToProductResponseConverter converter) {
 		this.modelMapper = modelMapper;
 		this.productRepository = productRepository;
+		this.categoryRepository = categoryRepository;
+		this.converter=converter;
 	}
 
 	public Page<ProductResponseDTO> getAllProduct(int page,int size,String sort,String sortDirection) {
 		Sort sorter = Sort
                 .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
         Pageable pageable = PageRequest.of(page, size, sorter);
-		
+ 
         return productRepository.findAll(pageable)
-				.map(product -> modelMapper.map(product, ProductResponseDTO.class));
+				.map(converter::convert);
 	}
 	
 	public ProductResponseDTO getProductById(Long productId) {
-		Optional<ProductEntity> productEntity = productRepository.findById(productId);
-		if (productEntity.isEmpty()) {
-			throw new IllegalArgumentException(
-					String.format("Product [%s] not found", productId));
-		}
-		return modelMapper.map(productEntity.get(), ProductResponseDTO.class);
+		return productRepository.findById(productId).map(converter::convert)
+	            .orElseThrow(() -> new IllegalArgumentException(
+	                    String.format("Product [%s] not found", productId)));
 	}
 
 	//Recibe un ProductRequestDTO
 	public void createProduct(ProductRequestDTO productRequestDTO) {
-		ProductEntity productEntity = modelMapper.map(productRequestDTO, ProductEntity.class);
-		productRepository.save(productEntity);
+		productRepository.save(convertDTOtoEntity(productRequestDTO));
 	}
 
+	public ProductEntity convertDTOtoEntity(ProductRequestDTO productRequestDTO) {
+		var category = categoryRepository.findById(productRequestDTO.getIdCategory());
+		
+		if (category.isEmpty()) {
+			throw new IllegalArgumentException(
+					String.format("Category [%s] not found", productRequestDTO.getIdCategory()));
+		}
+		ProductEntity productEntity = new ProductEntity();
+		productEntity.setName(productRequestDTO.getName());
+		productEntity.setDescription(productRequestDTO.getDescription());
+		productEntity.setPrice(productRequestDTO.getPrice());
+		productEntity.setStock(productRequestDTO.getStock());
+		productEntity.setBarCode(productRequestDTO.getBarCode());
+		productEntity.setCategory(category.get());
+		
+		return productEntity;
+	}
 	public void updateProduct(Long product_id,ProductRequestDTO productRequestDTO) {
 		Optional<ProductEntity> productEntity = productRepository.findById(product_id);
 		if (productEntity.isEmpty()) {
