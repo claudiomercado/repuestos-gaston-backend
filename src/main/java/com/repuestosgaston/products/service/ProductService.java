@@ -65,6 +65,8 @@ public class ProductService {
 		productEntity.setPrice(productRequestDTO.getPrice());
 		productEntity.setStock(productRequestDTO.getStock());
 		productEntity.setBarCode(productRequestDTO.getBarCode());
+		productEntity.setAmount(null);
+		productEntity.setSub_total_price(null);
 		productEntity.setCategory(category.get());
 		
 		return productEntity;
@@ -81,6 +83,8 @@ public class ProductService {
 		productEntity.get().setPrice(productRequestDTO.getPrice() != null ? productRequestDTO.getPrice() : productEntity.get().getPrice());
 		productEntity.get().setStock(productRequestDTO.getStock() != null ? productRequestDTO.getStock() : productEntity.get().getStock());
 		productEntity.get().setBarCode(productRequestDTO.getBarCode() != null ? productRequestDTO.getBarCode() : productEntity.get().getBarCode());
+		productEntity.get().setAmount(null);
+		productEntity.get().setSub_total_price(null);
 //		productEntity.get().setImage(productDTO.getImage() != null ? productDTO.getImage() : productEntity.get().getImage());		
 //		productEntity.get().setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : productEntity.get().getCategory());
 //		modelMapper.map(productDTO, ProductEntity.class);

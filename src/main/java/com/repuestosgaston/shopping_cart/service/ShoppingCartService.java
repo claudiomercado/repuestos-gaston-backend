@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.repuestosgaston.products.controller.dto.ProductCartResponseDTO;
+import com.repuestosgaston.products.controller.dto.ProductResponseDTO;
+import com.repuestosgaston.products.converter.ProductCartToShoppingCartResponse;
 import com.repuestosgaston.products.model.ProductEntity;
 import com.repuestosgaston.products.repository.ProductRepository;
 import com.repuestosgaston.shopping_cart.controller.dto.RequestAddProductDTO;
@@ -18,6 +21,7 @@ import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartResponseDTO;
 import com.repuestosgaston.shopping_cart.converter.ShoppingCartEntityToShoppingCartResponseDTO;
 import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
 import com.repuestosgaston.shopping_cart.repository.ShoppingCartRepository;
+import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.repository.UserRepository;
 
 @Service
@@ -27,17 +31,23 @@ public class ShoppingCartService {
 	private final UserRepository userRepository;
 	private final ProductRepository productRepository;
 	private final ModelMapper modelMapper;
-	private final ShoppingCartEntityToShoppingCartResponseDTO converter;
+	private final ShoppingCartEntityToShoppingCartResponseDTO converterShoppingCartResponse;
+	private final ProductCartToShoppingCartResponse converterProductCartResponse;
 	private Integer productQuantity;
 	
 
-	public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, UserRepository userRepository,
-			ProductRepository productRepository, ModelMapper modelMapper,ShoppingCartEntityToShoppingCartResponseDTO converter) {
+	public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, 
+			UserRepository userRepository,
+			ProductRepository productRepository, 
+			ModelMapper modelMapper,
+			ShoppingCartEntityToShoppingCartResponseDTO converterShoppingCartResponse, 
+			ProductCartToShoppingCartResponse converterProductCartResponse) {
 		this.shoppingCartRepository = shoppingCartRepository;
 		this.userRepository = userRepository;
 		this.productRepository = productRepository;
 		this.modelMapper = modelMapper;
-		this.converter = converter;
+		this.converterShoppingCartResponse = converterShoppingCartResponse;
+		this.converterProductCartResponse = converterProductCartResponse;
 	}
 
 	//Ver si sigue
@@ -46,16 +56,25 @@ public class ShoppingCartService {
 		Pageable pageable = PageRequest.of(page, size, sorter);
 
 		return shoppingCartRepository.findAll(pageable)
-				.map(converter::convert);
+				.map(converterProductCartResponse::convert);
 	}
 
 	//Ver si sigue
-	public ShoppingCartResponseDTO getShoppingCartById(Long shoppingCartId) {
-		return shoppingCartRepository.findById(shoppingCartId)
-				.map(converter::convert)
-				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCartId)));
+	public ShoppingCartResponseDTO getShoppingCartById(String username) {
+		UserEntity user = userRepository.findByUsername(username).get();
+		ShoppingCartEntity shoppingCartEntity = user.getCart();
+//		shoppingCartEntity.getProducts().stream().forEach(x->x.get);
+//		ShoppingCartResponseDTO dto = shoppingCartRepository.findById(shoppingCartEntity.getId())
+//				.map(converter::convert)
+//				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCartEntity.getId())));
+
+//		dto.set
+		return shoppingCartRepository.findById(shoppingCartEntity.getId())
+				.map(converterProductCartResponse::convert)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCartEntity.getId())));
+
+
 	}
-	
 	public ShoppingCartEntity createShoppingCart() {
 		ShoppingCartEntity shoppingCartEntity = new ShoppingCartEntity();
 		shoppingCartEntity.setTotalPrice(0.0);
@@ -65,7 +84,7 @@ public class ShoppingCartService {
 	}
 
 	public void addProducts(String username,RequestAddProductDTO requestAddProductDTO) {
-		var userEntity = userRepository.findByUsername(username)
+		UserEntity userEntity = userRepository.findByUsername(username)
 	            .orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
 
 	    ShoppingCartEntity cartEntity = userEntity.getCart();
@@ -73,31 +92,38 @@ public class ShoppingCartService {
 	        throw new IllegalArgumentException(String.format("Cart not found for user [%s]", username));
 	    }
 
-	    var product = productRepository.findById(requestAddProductDTO.getIdProduct())
+	    ProductEntity product = productRepository.findById(requestAddProductDTO.getIdProduct())
 	            .orElseThrow(() -> new IllegalArgumentException(String.format("Product [%s] not found", requestAddProductDTO.getIdProduct())));
-
+	    
 	    if (requestAddProductDTO.getAmount() > product.getStock()) {
 	        throw new IllegalArgumentException(String.format("Insufficient amount [%s]", requestAddProductDTO.getAmount()));
 	    }
-
+	    
+	    double subtotalProduct = 0.0;
 	    List<ProductEntity> products = cartEntity.getProducts();
+	    Integer newAmount = 0;
 
 	    if (products.stream().anyMatch(p -> p.getId().equals(product.getId()))) {
 	        // Si el producto ya está en el carrito, actualiza la cantidad
 	        for (ProductEntity p : products) {
 	            if (p.getId().equals(product.getId())) {
-	                int newAmount = p.getStock() + requestAddProductDTO.getAmount();
-	                p.setStock(newAmount);
+	            	newAmount = p.getAmount() + requestAddProductDTO.getAmount();
+	            	subtotalProduct += calculatePriceAmountProduct(p,newAmount);
 	                break;
 	            }
 	        }
 	    } else {
 	        // Si el producto no está en el carrito, agrégalo
 	        products.add(product);
+	        subtotalProduct += calculatePriceAmountProduct(product,requestAddProductDTO.getAmount());
 	    }
-
+	    
+		double totalPrice = cartEntity.getTotalPrice();
+//	    subtotalProduct = calculatePriceAmountProduct(product,requestAddProductDTO.getAmount());
+	    
+	    totalPrice += subtotalProduct;
 	    // Actualiza el total del carrito y la lista de productos
-	    cartEntity.setTotalPrice(calculateTotalPrice(products));
+	    cartEntity.setTotalPrice(totalPrice);
 	    cartEntity.setProducts(products);
 
 	    shoppingCartRepository.save(cartEntity);
@@ -106,12 +132,36 @@ public class ShoppingCartService {
 	//Descontar stock de productos llamando al servicio de productos
 	//Implementar misma funcionalidad pero para quitar productos del carrito
 	//Funcion que vacie el carrito
+	private Double calculateTotalPriceCart(Double subtotalProduct) {
+		return null;
+	}
+	
 	private Double calculateTotalPrice(List<ProductEntity> products) {
 		Double totalPrice = 0.0;
 		for (ProductEntity productEntity : products) {
 			totalPrice += productEntity.getPrice();
 		}
 		return totalPrice;
+	}
+	
+	private Double calculatePriceAmountProduct(ProductEntity product, Integer amount) {
+		 Double result = product.getPrice() * amount;
+		 return result;
+//		if (products.stream().anyMatch(p -> p.getId().equals(product.getId()))) {
+//	        // Si el producto ya está en el carrito, actualiza la cantidad
+//	        for (ProductEntity p : products) {
+//	            if (p.getId().equals(product.getId())) {
+//	                int newAmount = p.getStock() + requestAddProductDTO.getAmount();
+//	                p.setStock(newAmount);
+//	                break;
+//	            }
+//	        }
+//	    } else {
+//	        // Si el producto no está en el carrito, agrégalo
+//	        products.add(product);
+//	    }
+
+	//	return null;
 	}
 
 	public void addProductToCart(String username ,Long idProduct) {

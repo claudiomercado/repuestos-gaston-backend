@@ -3,6 +3,7 @@ package com.repuestosgaston.shopping_cart.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,10 +50,11 @@ public class ShoppingCartController {
 		}		
 	}
 	
-	@GetMapping(path = "/{id}")
-	public ResponseEntity<ShoppingCartResponseDTO> getShoppingCartById(@PathVariable("id")Long shoppingCartId){
+	@GetMapping(path = "/id")
+	public ResponseEntity<ShoppingCartResponseDTO> getShoppingCartById(){
 		try {
-			return ResponseEntity.ok().body(shoppingCartService.getShoppingCartById(shoppingCartId));
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			return ResponseEntity.ok().body(shoppingCartService.getShoppingCartById(username));
 		} catch (Exception e) {
 			log.error(String.format("ShoppingCartController.getShoppingCartById - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

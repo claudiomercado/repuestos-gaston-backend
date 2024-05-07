@@ -1,6 +1,5 @@
 package com.repuestosgaston.products.controller.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -12,20 +11,18 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductResponseDTO {
-	
+public class ProductCartResponseDTO {
+
 	@JsonProperty("product_id")
 	private Long id;
 	@JsonProperty("name")
 	private String name;
-	@JsonProperty("description")
-	private String description;
 	@JsonProperty("price")
 	private Double price;
 	@JsonProperty("stock")
 	private Integer stock;
-	@JsonProperty("category")
-	private String category;
-	@JsonProperty("bar_code")
-	private Integer barCode;
+	@JsonProperty("amount")
+	private Integer amount;
+	@JsonProperty("sub_total_price")
+	private Double sub_total_price;
 }

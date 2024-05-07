@@ -3,9 +3,7 @@ package com.repuestosgaston.shopping_cart.controller.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.repuestosgaston.products.controller.dto.ProductResponseDTO;
-import com.repuestosgaston.users.model.UserEntity;
-
+import com.repuestosgaston.products.controller.dto.ProductCartResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,5 +22,5 @@ public class ShoppingCartResponseDTO {
 	@JsonProperty("number_cart")
 	private Integer numberCart;
 	@JsonProperty("products")
-	private List<ProductResponseDTO> products;
+	private List<ProductCartResponseDTO> products;
 }

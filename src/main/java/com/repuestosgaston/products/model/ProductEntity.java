@@ -1,5 +1,7 @@
 package com.repuestosgaston.products.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -45,6 +47,12 @@ public class ProductEntity {
 	@Column(name = "image")
 	@Lob
 	private byte[] image;
+	
+	@Column(name = "amount", nullable = true)
+	private Integer amount;
+
+	@Column(name = "sub_total_price", nullable = true)
+	private Double sub_total_price;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	private CategoryEntity category;

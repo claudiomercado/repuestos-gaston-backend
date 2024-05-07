@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import com.repuestosgaston.products.controller.dto.ProductCartResponseDTO;
 import com.repuestosgaston.products.controller.dto.ProductResponseDTO;
+import com.repuestosgaston.products.converter.ProductCartToShoppingCartResponse;
 import com.repuestosgaston.products.converter.ProductEntityToProductResponseConverter;
 import com.repuestosgaston.products.model.ProductEntity;
 import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartResponseDTO;
@@ -17,7 +19,7 @@ import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
 public class ShoppingCartEntityToShoppingCartResponseDTO implements Converter<ShoppingCartEntity, ShoppingCartResponseDTO>{
 
 	@Autowired
-	private ProductEntityToProductResponseConverter productConverter;
+	private ProductCartToShoppingCartResponse productConverter;
 	
 	@Override
 	public ShoppingCartResponseDTO convert(ShoppingCartEntity shoppingCartEntity) {
@@ -26,11 +28,11 @@ public class ShoppingCartEntityToShoppingCartResponseDTO implements Converter<Sh
 		dto.setNumberCart(shoppingCartEntity.getNumberCart());
 		dto.setTotalPrice(shoppingCartEntity.getTotalPrice());
 		
-		List<ProductResponseDTO> productsResponseDTO = new ArrayList<>();
+		List<ProductCartResponseDTO> productsResponseDTO = new ArrayList<>();
 		for (ProductEntity productEntity : shoppingCartEntity.getProducts()) {
 			productsResponseDTO.add(productConverter.convert(productEntity));
 		}	
-		dto.setProducts(productsResponseDTO);
+//		dto.setProducts(productsResponseDTO);
 		
 		return dto;
 	}
