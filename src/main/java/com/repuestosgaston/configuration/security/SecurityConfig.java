@@ -51,26 +51,33 @@ public class SecurityConfig {
 		
 		return httpSecurity
 //				.csrf(config -> config.disable())
-				.csrf().disable()
-				.authorizeHttpRequests(auth ->{
-					auth.requestMatchers(HttpMethod.POST,"/v1/users/").permitAll();
-					auth.requestMatchers(HttpMethod.GET,"/v1/product/getAll").permitAll();
-					auth.requestMatchers(HttpMethod.GET,"/v1/product/getById/**").permitAll();
-					auth.requestMatchers(HttpMethod.POST,"/login").permitAll();
-					auth.requestMatchers(HttpMethod.POST,"/logout").permitAll();
-					auth.anyRequest().authenticated();
-					try {
-						auth.and().cors().configurationSource(corsConfigurationSource());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				})
-				.sessionManagement(session -> {
-					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-				})
-				.addFilter(authenticationFilter)
-				.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
-				.build();
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(HttpMethod.POST, "/v1/users/").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/v1/product/getAll").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/v1/product/getById/**").permitAll();
+                    auth.anyRequest().authenticated();
+                    try {
+                        auth.and().cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                })
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .permitAll())
+                .logout(logout -> logout
+                			.logoutUrl("/logout")
+                            .logoutSuccessUrl("/login")
+                            .invalidateHttpSession(true)
+                            .deleteCookies("JSESSIONID")
+                )
+                .sessionManagement(session -> {
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                })
+                .addFilter(authenticationFilter)
+                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
 	}
 	
 	//Crea o no una forma de encriptacion 
