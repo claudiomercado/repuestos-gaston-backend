@@ -60,6 +60,17 @@ public class UserController {
 		}		
 	}
 	
+	@GetMapping(path = "/user")
+	public ResponseEntity<UserResponseDTO> getUser(){
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			return ResponseEntity.ok().body(userService.getUser(username));
+		} catch (IllegalArgumentException e) {
+			log.error(String.format("UserController.getUserById - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}		
+	}
+	
 	@PostMapping(path = "/")
 	public ResponseEntity<Object> createUser(@RequestBody UserRequestCreateDTO userRequestDTO){
 		try {

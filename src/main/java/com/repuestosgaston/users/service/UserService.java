@@ -56,6 +56,16 @@ public class UserService {
 			}
 		return modelMapper.map(userEntity, UserResponseDTO.class);	
 	}
+	
+	public UserResponseDTO getUser(String username) {
+		Optional<UserEntity> userEntity = userRepository.findByUsername(username);
+		
+		if (userEntity.isEmpty()) {
+			throw new IllegalArgumentException(
+				String.format("User [%s] not found", username));
+			}
+		return modelMapper.map(userEntity, UserResponseDTO.class);	
+	}
 
 	public void createUser(UserRequestCreateDTO userRequestDTO) {
 		UserEntity userEntity = modelMapper.map(userRequestDTO, UserEntity.class);																											
