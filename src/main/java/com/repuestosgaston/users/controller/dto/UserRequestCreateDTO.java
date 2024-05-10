@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserRequestDTO {
+public class UserRequestCreateDTO {
 
 	@JsonProperty("email")
 	@JsonInclude(JsonInclude.Include.NON_NULL)

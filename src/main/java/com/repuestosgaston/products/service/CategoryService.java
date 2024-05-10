@@ -43,21 +43,19 @@ public class CategoryService {
 		return modelMapper.map(categoryEntity.get(), CategoryReponseDTO.class);
 	}
 
-	//Recibe un CategoryRequestDTO
 	public void createCategory(CategoryRequestDTO categoryRequestDTO) {
 		CategoryEntity categoryEntity = modelMapper.map(categoryRequestDTO, CategoryEntity.class);
 		categoryRepository.save(categoryEntity);
 	}
 
-	public void updateCategory(Long category_id,CategoryRequestDTO categoryRequestDTO) {
-		Optional<CategoryEntity> categoryEntity = categoryRepository.findById(category_id);
+	public void updateCategoryById(Long categoryId,CategoryRequestDTO categoryRequestDTO) {
+		Optional<CategoryEntity> categoryEntity = categoryRepository.findById(categoryId);
 		if (categoryEntity.isEmpty()) {
 			throw new IllegalArgumentException(
-					String.format("Category [%s] not found", category_id));
+					String.format("Category [%s] not found", categoryId));
 		}
 		
 		categoryEntity.get().setName(categoryRequestDTO.getName() != null ? categoryRequestDTO.getName() : categoryEntity.get().getName());
-		//Logica para modificar la categoria en base a la categoria que recibe
 		categoryRepository.save(categoryEntity.get());
 	}
 	

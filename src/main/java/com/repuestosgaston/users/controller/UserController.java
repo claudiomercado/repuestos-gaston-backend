@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.repuestosgaston.users.controller.dto.UserRequestDTO;
+import com.repuestosgaston.users.controller.dto.UserRequestCreateDTO;
+import com.repuestosgaston.users.controller.dto.UserRequestUpdateDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseDTO;
 import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.service.UserService;
@@ -60,7 +61,7 @@ public class UserController {
 	}
 	
 	@PostMapping(path = "/")
-	public ResponseEntity<Object> createUser(@RequestBody UserRequestDTO userRequestDTO){
+	public ResponseEntity<Object> createUser(@RequestBody UserRequestCreateDTO userRequestDTO){
 		try {
 			userService.createUser(userRequestDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -71,11 +72,11 @@ public class UserController {
 	}
 	
 	@PutMapping(path = "/")
-	public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserRequestDTO userRequestDTO){
+	public ResponseEntity<Object> updateUser(@RequestBody UserRequestUpdateDTO userRequestDTO){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			UserResponseDTO userEntity = userService.updateUser(username, userRequestDTO);
-			return ResponseEntity.status(HttpStatus.CREATED).body(userEntity);
+			userService.updateUser(username, userRequestDTO);
+			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("UserController.updateUser - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -83,7 +84,7 @@ public class UserController {
 	}
 	
 	@DeleteMapping(path = "/")
-	public ResponseEntity<UserEntity> deleteUser(){
+	public ResponseEntity<Object> deleteUser(){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
 			userService.deleteUser(username);
@@ -95,7 +96,7 @@ public class UserController {
 	}
 	
 	@DeleteMapping(path = "/{id}")
-	public ResponseEntity<UserEntity> deleteUserById(@PathVariable("id") Long userId){
+	public ResponseEntity<Object> deleteUserById(@PathVariable("id") Long userId){
 		try {
 			userService.deleteUserById(userId);
 			return ResponseEntity.status(HttpStatus.OK).build();

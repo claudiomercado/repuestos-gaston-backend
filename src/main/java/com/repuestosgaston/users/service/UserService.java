@@ -14,7 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.repuestosgaston.shopping_cart.service.ShoppingCartService;
-import com.repuestosgaston.users.controller.dto.UserRequestDTO;
+import com.repuestosgaston.users.controller.dto.UserRequestCreateDTO;
+import com.repuestosgaston.users.controller.dto.UserRequestUpdateDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseDTO;
 import com.repuestosgaston.users.model.RoleEntity;
 import com.repuestosgaston.users.model.UserEntity;
@@ -56,7 +57,7 @@ public class UserService {
 		return modelMapper.map(userEntity, UserResponseDTO.class);	
 	}
 
-	public void createUser(UserRequestDTO userRequestDTO) {
+	public void createUser(UserRequestCreateDTO userRequestDTO) {
 		UserEntity userEntity = modelMapper.map(userRequestDTO, UserEntity.class);																											
 		
 		String password = userRequestDTO.getPassword();
@@ -68,55 +69,45 @@ public class UserService {
 		userRepository.save(userEntity);
 	}
 
-	public UserResponseDTO updateUser(String username, UserRequestDTO userRequestDTO) {
+	public void updateUser(String username, UserRequestUpdateDTO userRequestDTO) {
 		UserEntity userEntity = userRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
 
-		validateFields(userEntity,userRequestDTO);
+		//validateFields(userEntity,userRequestDTO);
 		
 		updateFields(userEntity, userRequestDTO);
-			
-		UserEntity userEntity2 = userRepository.save(userEntity);
-		return modelMapper.map(userEntity2, UserResponseDTO.class);
+		userRepository.save(userEntity);
 	}
 	
-	private void validateFields(UserEntity userEntity,UserRequestDTO userRequestDTO) {
-		String username = userRequestDTO.getUsername();
-		String email = userRequestDTO.getEmail();
-		String dni = userRequestDTO.getDni();
-		
-		if (userRepository.findByUsername(username).isPresent()) {
-			throw new IllegalArgumentException(
-					String.format("Username existente"));
-		}
-		if (userRepository.findByEmail(email).isPresent()) {
-			throw new IllegalArgumentException(
-					String.format("Email existente"));
-		}
-		if (userRepository.findByDni(dni).isPresent()) {
-			throw new IllegalArgumentException(
-					String.format("DNI existente"));
-		}
-	}
+//	private void validateFields(UserEntity userEntity,UserRequestDTO userRequestDTO) {
+//		String username = userRequestDTO.getUsername();
+//		String email = userRequestDTO.getEmail();
+//		String dni = userRequestDTO.getDni();
+//		
+//		if (userRepository.findByUsername(username).isPresent()) {
+//			throw new IllegalArgumentException(
+//					String.format("Username existente"));
+//		}
+//		if (userRepository.findByEmail(email).isPresent()) {
+//			throw new IllegalArgumentException(
+//					String.format("Email existente"));
+//		}
+//		if (userRepository.findByDni(dni).isPresent()) {
+//			throw new IllegalArgumentException(
+//					String.format("DNI existente"));
+//		}
+//	}
 	
-	private void updateFields(UserEntity userEntity, UserRequestDTO userRequestDTO) {
-	    if (userRequestDTO.getEmail() != null) {
-	        userEntity.setEmail(userRequestDTO.getEmail());
-	    }
-	    if (userRequestDTO.getUsername() != null) {
-	        userEntity.setUsername(userRequestDTO.getUsername());
-	    }
+	private void updateFields(UserEntity userEntity, UserRequestUpdateDTO userRequestDTO) {
 	    if (userRequestDTO.getPassword() != null) {
-	        userEntity.setPassword(userRequestDTO.getPassword());
+	    	String encodedPassword = passwordEncoder.encode(userRequestDTO.getPassword());
+			userEntity.setPassword(encodedPassword);
 	    }
 	    if (userRequestDTO.getName() != null) {
 	        userEntity.setName(userRequestDTO.getName());
 	    }
 	    if (userRequestDTO.getSurname() != null) {
 	        userEntity.setSurname(userRequestDTO.getSurname());
-	    }
-	    if (userRequestDTO.getDni() != null) {
-	        userEntity.setDni(userRequestDTO.getDni());
 	    }
 	    if (userRequestDTO.getBirthdate() != null) {
 	        userEntity.setBirthdate(userRequestDTO.getBirthdate());

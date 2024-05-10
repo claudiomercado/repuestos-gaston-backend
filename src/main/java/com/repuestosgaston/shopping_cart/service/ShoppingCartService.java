@@ -56,7 +56,7 @@ public class ShoppingCartService {
 		Pageable pageable = PageRequest.of(page, size, sorter);
 
 		return shoppingCartRepository.findAll(pageable)
-				.map(converterProductCartResponse::convert);
+				.map(converterShoppingCartResponse::convert);
 	}
 
 	//Ver si sigue
@@ -70,7 +70,7 @@ public class ShoppingCartService {
 
 //		dto.set
 		return shoppingCartRepository.findById(shoppingCartEntity.getId())
-				.map(converterProductCartResponse::convert)
+				.map(converterShoppingCartResponse::convert)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCartEntity.getId())));
 
 
@@ -109,6 +109,7 @@ public class ShoppingCartService {
 	            if (p.getId().equals(product.getId())) {
 	            	newAmount = p.getAmount() + requestAddProductDTO.getAmount();
 	            	subtotalProduct += calculatePriceAmountProduct(p,newAmount);
+	            	product.setAmount(newAmount);
 	                break;
 	            }
 	        }
@@ -116,30 +117,21 @@ public class ShoppingCartService {
 	        // Si el producto no está en el carrito, agrégalo
 	        products.add(product);
 	        subtotalProduct += calculatePriceAmountProduct(product,requestAddProductDTO.getAmount());
+	        product.setAmount(requestAddProductDTO.getAmount());
 	    }
-	    
-		double totalPrice = cartEntity.getTotalPrice();
-//	    subtotalProduct = calculatePriceAmountProduct(product,requestAddProductDTO.getAmount());
-	    
-	    totalPrice += subtotalProduct;
+	    product.setSub_total_price(subtotalProduct);
+
 	    // Actualiza el total del carrito y la lista de productos
-	    cartEntity.setTotalPrice(totalPrice);
+	    cartEntity.setTotalPrice(calculateTotalPrice(products));
 	    cartEntity.setProducts(products);
 
 	    shoppingCartRepository.save(cartEntity);
-	}
-
-	//Descontar stock de productos llamando al servicio de productos
-	//Implementar misma funcionalidad pero para quitar productos del carrito
-	//Funcion que vacie el carrito
-	private Double calculateTotalPriceCart(Double subtotalProduct) {
-		return null;
 	}
 	
 	private Double calculateTotalPrice(List<ProductEntity> products) {
 		Double totalPrice = 0.0;
 		for (ProductEntity productEntity : products) {
-			totalPrice += productEntity.getPrice();
+			totalPrice += productEntity.getSub_total_price();
 		}
 		return totalPrice;
 	}
@@ -147,25 +139,6 @@ public class ShoppingCartService {
 	private Double calculatePriceAmountProduct(ProductEntity product, Integer amount) {
 		 Double result = product.getPrice() * amount;
 		 return result;
-//		if (products.stream().anyMatch(p -> p.getId().equals(product.getId()))) {
-//	        // Si el producto ya está en el carrito, actualiza la cantidad
-//	        for (ProductEntity p : products) {
-//	            if (p.getId().equals(product.getId())) {
-//	                int newAmount = p.getStock() + requestAddProductDTO.getAmount();
-//	                p.setStock(newAmount);
-//	                break;
-//	            }
-//	        }
-//	    } else {
-//	        // Si el producto no está en el carrito, agrégalo
-//	        products.add(product);
-//	    }
-
-	//	return null;
 	}
 
-	public void addProductToCart(String username ,Long idProduct) {
-				
-		
-	}
 }

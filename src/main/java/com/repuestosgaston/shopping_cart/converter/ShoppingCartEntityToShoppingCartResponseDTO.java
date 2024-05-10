@@ -32,7 +32,7 @@ public class ShoppingCartEntityToShoppingCartResponseDTO implements Converter<Sh
 		for (ProductEntity productEntity : shoppingCartEntity.getProducts()) {
 			productsResponseDTO.add(productConverter.convert(productEntity));
 		}	
-//		dto.setProducts(productsResponseDTO);
+		dto.setProducts(productsResponseDTO);
 		
 		return dto;
 	}

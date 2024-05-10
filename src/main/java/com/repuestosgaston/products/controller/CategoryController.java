@@ -33,7 +33,7 @@ public class CategoryController {
 		this.categoryService = categoryService;
 	}
 	
-	@GetMapping(path = "/getAll")
+	@GetMapping(path = "/")
 	public ResponseEntity<Page<CategoryReponseDTO>> getAllCategory(
 			@RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "100") int size,
@@ -48,8 +48,8 @@ public class CategoryController {
 		}		
 	}
 	
-	@GetMapping(path = "/getById/{categoryId}")
-	public ResponseEntity<CategoryReponseDTO> getCategoryById(@PathVariable("categoryId") Long categoryId){
+	@GetMapping(path = "/{id}")
+	public ResponseEntity<CategoryReponseDTO> getCategoryById(@PathVariable("id") Long categoryId){
 		try {
 			return ResponseEntity.ok().body(categoryService.getCategoryById(categoryId));
 		} catch (IllegalArgumentException e) {
@@ -69,10 +69,10 @@ public class CategoryController {
 		}		
 	}
 	
-	@PutMapping(path = "/{category_id}")
-	public ResponseEntity<CategoryEntity> updateCategory(@PathVariable("category_id") Long category_id,@RequestBody CategoryRequestDTO categoryRequestDTO){
+	@PutMapping(path = "/{id}")
+	public ResponseEntity<CategoryEntity> updateCategoryById(@PathVariable("id") Long categoryId,@RequestBody CategoryRequestDTO categoryRequestDTO){
 		try {
-			categoryService.updateCategory(category_id,categoryRequestDTO);
+			categoryService.updateCategoryById(categoryId,categoryRequestDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("CategoryController.updateCategory - Failed with message [%s]", e.getMessage()));
@@ -80,8 +80,8 @@ public class CategoryController {
 		}		
 	}
 	
-	@DeleteMapping(path = "/{category_id}")
-	public ResponseEntity<CategoryEntity> deleteCategoryById(@PathVariable("category_id") Long categoryId){
+	@DeleteMapping(path = "/{id}")
+	public ResponseEntity<CategoryEntity> deleteCategoryById(@PathVariable("id") Long categoryId){
 		try {
 			categoryService.deleteCategoryById(categoryId);
 			return ResponseEntity.status(HttpStatus.OK).build();
