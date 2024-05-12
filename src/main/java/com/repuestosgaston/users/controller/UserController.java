@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.repuestosgaston.users.controller.dto.UserRequestCreateDTO;
 import com.repuestosgaston.users.controller.dto.UserRequestUpdateDTO;
+import com.repuestosgaston.users.controller.dto.UserResponseAdminDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseDTO;
 import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.service.UserService;
@@ -51,7 +52,7 @@ public class UserController {
 	}
 	
 	@GetMapping(path = "/{id}")
-	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable("id") Long userId){
+	public ResponseEntity<UserResponseAdminDTO> getUserById(@PathVariable("id") Long userId){
 		try {
 			return ResponseEntity.ok().body(userService.getUserById(userId));
 		} catch (IllegalArgumentException e) {

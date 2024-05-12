@@ -13,10 +13,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.repuestosgaston.shopping_cart.converter.ShoppingCartEntityToShoppingCartResponseDTO;
 import com.repuestosgaston.shopping_cart.service.ShoppingCartService;
 import com.repuestosgaston.users.controller.dto.UserRequestCreateDTO;
 import com.repuestosgaston.users.controller.dto.UserRequestUpdateDTO;
+import com.repuestosgaston.users.controller.dto.UserResponseAdminDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseDTO;
+import com.repuestosgaston.users.convert.UserEntityToUserResponseAdminConverter;
 import com.repuestosgaston.users.model.RoleEntity;
 import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.model.enums.RoleEnum;
@@ -26,16 +29,25 @@ import com.repuestosgaston.users.repository.UserRepository;
 public class UserService {
 	private final UserRepository userRepository;
 	private final ShoppingCartService shoppingCartService;
+	private final RolService rolService;
+	private final UserEntityToUserResponseAdminConverter converterUserResponseAdmin;
+
 	
 	private final ModelMapper modelMapper;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	public UserService(UserRepository userRepository, ShoppingCartService shoppingCartService ,ModelMapper modelMapper) {
+	public UserService(UserRepository userRepository, 
+			ShoppingCartService shoppingCartService ,
+			ModelMapper modelMapper,
+			UserEntityToUserResponseAdminConverter converterUserResponseAdmin,
+			RolService rolService) {
 		this.shoppingCartService = shoppingCartService;
 		this.userRepository = userRepository;
 		this.modelMapper = modelMapper;
+		this.converterUserResponseAdmin = converterUserResponseAdmin;
+		this.rolService = rolService;
 	}
 
 	public Page<UserResponseDTO> getAllUser(int page,int size,String sort,String sortDirection) {
@@ -47,14 +59,13 @@ public class UserService {
 				.map(user -> modelMapper.map(user, UserResponseDTO.class));
 	}
 	
-	public UserResponseDTO getUserById(Long userId) {
+	public UserResponseAdminDTO getUserById(Long userId) {
 		Optional<UserEntity> userEntity = userRepository.findById(userId);
 		
-		if (userEntity.isEmpty()) {
-			throw new IllegalArgumentException(
-				String.format("User [%s] not found", userId));
-			}
-		return modelMapper.map(userEntity, UserResponseDTO.class);	
+		return userRepository.findById(userId)
+				.map(converterUserResponseAdmin::convert)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", userId)));
+	
 	}
 	
 	public UserResponseDTO getUser(String username) {
@@ -73,9 +84,10 @@ public class UserService {
 		String password = userRequestDTO.getPassword();
 		String encodedPassword = passwordEncoder.encode(password);
 		userEntity.setPassword(encodedPassword);
+		userEntity.setCart(shoppingCartService.createShoppingCart());
+		userRepository.save(userEntity);
 		
-		userEntity.setRoles(this.createRole());
-		userEntity.setCart(shoppingCartService.createShoppingCart());	    
+		userEntity.setRoles(rolService.createRoleUser());
 		userRepository.save(userEntity);
 	}
 
@@ -142,13 +154,4 @@ public class UserService {
 		userRepository.deleteById(userEntity.get().getId());
 	}
 	
-	public Set<RoleEntity> createRole(){
-		Set<RoleEntity> roles = new HashSet<>();
-		RoleEntity rolEntity = new RoleEntity();
-		rolEntity.setName(RoleEnum.USER);	
-		roles.add(rolEntity);
-	    return roles;
-	}
-
-
 }
