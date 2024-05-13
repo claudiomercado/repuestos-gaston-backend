@@ -1,6 +1,5 @@
 package com.repuestosgaston.products.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -45,6 +44,22 @@ public class ProductService {
 		return productRepository.findById(productId).map(converter::convert)
 	            .orElseThrow(() -> new IllegalArgumentException(
 	                    String.format("Product [%s] not found", productId)));
+	}
+	
+	public Page<ProductResponseDTO> getProductByName(int page,int size,String sort,String sortDirection,String name) {
+		Sort sorter = Sort
+                .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
+        Pageable pageable = PageRequest.of(page, size, sorter);
+        
+		return productRepository.filterToName(pageable,name).map(converter::convert);
+	}
+	
+	public Page<ProductResponseDTO> getProductByCategory(int page,int size,String sort,String sortDirection,Long category) {
+		Sort sorter = Sort
+                .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
+        Pageable pageable = PageRequest.of(page, size, sorter);
+        
+		return productRepository.filterToCategory(pageable,category).map(converter::convert);
 	}
 
 	//Recibe un ProductRequestDTO

@@ -57,6 +57,40 @@ public class ProductController {
 		}		
 	}
 	
+	@GetMapping(path = "/filter/{name}/name")
+	public ResponseEntity<Page<ProductResponseDTO>> getProductByName(
+			@RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "100") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+			@PathVariable("name") String name){
+		
+		try {
+			return ResponseEntity.ok().body(productService.getProductByName(page,
+					size,sort,sortDirection,name));
+		} catch (IllegalArgumentException e) {
+			log.error(String.format("ProductController.getProductByName - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}		
+	}
+	
+	@GetMapping(path = "/filter/{category}/category")
+	public ResponseEntity<Page<ProductResponseDTO>> getProductByCategory(
+			@RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "100") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+			@PathVariable("category") Long category){
+		
+		try {
+			return ResponseEntity.ok().body(productService.getProductByCategory(page,
+					size,sort,sortDirection,category));
+		} catch (IllegalArgumentException e) {
+			log.error(String.format("ProductController.getProductByCategory - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}		
+	}
+	
 	@PostMapping(path = "/")
 	public ResponseEntity<Object> createProduct(@RequestBody ProductRequestDTO productRequestDTO){
 		try {

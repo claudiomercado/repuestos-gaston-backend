@@ -56,6 +56,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.POST, "/v1/users/").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/v1/product/getAll").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/v1/product/getById/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/v1/product/filter/**").permitAll();
                     auth.anyRequest().authenticated();
                     try {
                         auth.and().cors(cors -> cors.configurationSource(corsConfigurationSource()));
