@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.repuestosgaston.products.controller.dto.ProductCartResponseDTO;
 import com.repuestosgaston.products.controller.dto.ProductResponseDTO;
 import com.repuestosgaston.products.converter.ProductCartToShoppingCartResponse;
-import com.repuestosgaston.products.converter.ProductEntityToProductResponseConverter;
+import com.repuestosgaston.products.converter.ProductEntityToProductResponse;
 import com.repuestosgaston.products.model.ProductEntity;
 import com.repuestosgaston.shopping_cart.controller.dto.ShoppingCartResponseDTO;
 import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;

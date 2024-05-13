@@ -7,7 +7,7 @@ import com.repuestosgaston.products.controller.dto.ProductResponseDTO;
 import com.repuestosgaston.products.model.ProductEntity;
 
 @Component
-public class ProductEntityToProductResponseConverter implements Converter<ProductEntity, ProductResponseDTO> {
+public class ProductEntityToProductResponse implements Converter<ProductEntity, ProductResponseDTO> {
 
 	@Override
     public ProductResponseDTO convert(ProductEntity productEntity) {

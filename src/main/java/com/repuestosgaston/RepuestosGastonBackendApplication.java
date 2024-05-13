@@ -24,11 +24,7 @@ public class RepuestosGastonBackendApplication {
 	private static Logger logger = LoggerFactory.getLogger(RepuestosGastonBackendApplication.class);
 	
 	public static void main(String[] args) {
-		try {
 			SpringApplication.run(RepuestosGastonBackendApplication.class, args);
-		} catch (Exception e) {
-			logger.error(""+e.getMessage());
-		}
 	}
 	
 	 @Bean
@@ -52,12 +48,14 @@ public class RepuestosGastonBackendApplication {
 	        	rol.setName(RoleEnum.ADMIN);
 	        	roles.add(rol);
 	        	adminUser.setRoles(roles);
-	        	/*Set<RoleEntity> roles = new HashSet<>();
+	        	/*
+	        	Set<RoleEntity> roles = new HashSet<>();
 	        	roles.add(rol);
 	    		RoleEntity rolEntity = new RoleEntity();*/
 	    		/*roles.add(rolEntity);
 	        	adminUser.setRoles(roles);
-	    		rolRepository.save(rol);*/
+	    		rolRepository.save(rol);
+	    		*/
 	            userRepository.save(adminUser);
 	        };
 	    }

@@ -15,8 +15,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserResponseDTO {
 	
-	@JsonProperty("user_id")
-	private Long id;
 	@JsonProperty("email")
 	private String email;
 	@JsonProperty("username")
@@ -31,8 +29,4 @@ public class UserResponseDTO {
 	private String dni;
 	@JsonProperty("birthdate")
 	private LocalDate birthdate;
-//	@JsonProperty("address")
-//	private String address;
-	@JsonProperty("roles")	
-	private Set<RolResponseDTO> roles;
 }

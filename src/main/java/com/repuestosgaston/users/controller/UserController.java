@@ -61,7 +61,7 @@ public class UserController {
 		}		
 	}
 	
-	@GetMapping(path = "/user")
+	@GetMapping(path = "/profile")
 	public ResponseEntity<UserResponseDTO> getUser(){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();

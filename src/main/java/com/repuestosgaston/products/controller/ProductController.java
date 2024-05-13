@@ -32,7 +32,7 @@ public class ProductController {
 		this.productService = productService;
 	}
 
-	@GetMapping(path = "/getAll")
+	@GetMapping(path = "/")
 	public ResponseEntity<Page<ProductResponseDTO>> getAllProduct(
 			@RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "100") int size,
@@ -47,8 +47,8 @@ public class ProductController {
 		}		
 	}
 	
-	@GetMapping(path = "/getById/{productId}")
-	public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("productId")Long productId){
+	@GetMapping(path = "/{id}")
+	public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("id")Long productId){
 		try {
 			return ResponseEntity.ok().body(productService.getProductById(productId));
 		} catch (IllegalArgumentException e) {
@@ -113,10 +113,10 @@ public class ProductController {
 		}		
 	}
 	
-	@PutMapping(path = "/{product_id}")
-	public ResponseEntity<ProductEntity> updateProduct(@PathVariable Long product_id,@RequestBody ProductRequestDTO productRequestDTO){
+	@PutMapping(path = "/{id}")
+	public ResponseEntity<ProductEntity> updateProductById(@PathVariable("id") Long productId,@RequestBody ProductRequestDTO productRequestDTO){
 		try {
-			productService.updateProduct(product_id,productRequestDTO);
+			productService.updateProductById(productId,productRequestDTO);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("ProductController.updateProduct - Failed with message [%s]", e.getMessage()));
