@@ -59,16 +59,9 @@ public class ShoppingCartService {
 				.map(converterShoppingCartResponse::convert);
 	}
 
-	//Ver si sigue
 	public ShoppingCartResponseDTO getShoppingCartById(String username) {
 		UserEntity user = userRepository.findByUsername(username).get();
 		ShoppingCartEntity shoppingCartEntity = user.getCart();
-//		shoppingCartEntity.getProducts().stream().forEach(x->x.get);
-//		ShoppingCartResponseDTO dto = shoppingCartRepository.findById(shoppingCartEntity.getId())
-//				.map(converter::convert)
-//				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCartEntity.getId())));
-
-//		dto.set
 		return shoppingCartRepository.findById(shoppingCartEntity.getId())
 				.map(converterShoppingCartResponse::convert)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", shoppingCartEntity.getId())));
@@ -129,16 +122,88 @@ public class ShoppingCartService {
 	}
 	
 	private Double calculateTotalPrice(List<ProductEntity> products) {
-		Double totalPrice = 0.0;
-		for (ProductEntity productEntity : products) {
-			totalPrice += productEntity.getSub_total_price();
-		}
-		return totalPrice;
+		return products.stream()
+				.mapToDouble(ProductEntity::getSub_total_price)
+				.sum();
 	}
 	
 	private Double calculatePriceAmountProduct(ProductEntity product, Integer amount) {
-		 Double result = product.getPrice() * amount;
-		 return result;
+		 return product.getPrice() * amount;
 	}
 
+	public void deleteProductById(String username, Long productId) {
+		UserEntity userEntity = userRepository.findByUsername(username)
+	            .orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
+
+	    ShoppingCartEntity cartEntity = userEntity.getCart();
+	    if (cartEntity == null) {
+	        throw new IllegalArgumentException(String.format("Cart not found for user [%s]", username));
+	    }
+
+	    ProductEntity product = productRepository.findById(productId)
+	            .orElseThrow(() -> new IllegalArgumentException(String.format("Product [%s] not found", productId)));
+	    
+	    List<ProductEntity> products = cartEntity.getProducts();
+
+	    for (ProductEntity p : products) {
+            if (p.getId().equals(product.getId())) {
+            	products.remove(p);
+                break;
+            }
+        }
+	    product.setSub_total_price(0.0);
+	    product.setAmount(0);
+
+	    // Actualiza el total del carrito y la lista de productos
+	    cartEntity.setTotalPrice(calculateTotalPrice(products));
+	    cartEntity.setProducts(products);
+
+	    shoppingCartRepository.save(cartEntity);
+	}
+	
+	public void decreaseProduct(String username,RequestAddProductDTO requestAddProductDTO) {
+		UserEntity userEntity = userRepository.findByUsername(username)
+	            .orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
+
+	    ShoppingCartEntity cartEntity = userEntity.getCart();
+	    if (cartEntity == null) {
+	        throw new IllegalArgumentException(String.format("Cart not found for user [%s]", username));
+	    }
+
+	    ProductEntity product = productRepository.findById(requestAddProductDTO.getIdProduct())
+	            .orElseThrow(() -> new IllegalArgumentException(String.format("Product [%s] not found", requestAddProductDTO.getIdProduct())));
+
+	    double subtotalProduct = 0.0;
+	    List<ProductEntity> products = cartEntity.getProducts();
+	    Integer newAmount = 0;
+	    
+	    for (ProductEntity p : products) {
+            if (p.getId().equals(product.getId())) {
+            	newAmount = p.getAmount() - requestAddProductDTO.getAmount();
+            	product.setAmount(newAmount);
+            	subtotalProduct += calculatePriceAmountProduct(p,newAmount);
+                break;
+            }
+        }
+	    
+	    product.setSub_total_price(subtotalProduct);
+	    // Actualiza el total del carrito y la lista de productos
+	    cartEntity.setTotalPrice(calculateTotalPrice(products));
+	    cartEntity.setProducts(products);
+	    shoppingCartRepository.save(cartEntity);
+	}
+	
+	public void clearShoppingCart(String username) {
+		UserEntity userEntity = userRepository.findByUsername(username)
+	            .orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
+
+	    ShoppingCartEntity cartEntity = userEntity.getCart();
+	    if (cartEntity == null) {
+	        throw new IllegalArgumentException(String.format("Cart not found for user [%s]", username));
+	    }
+	    
+	    cartEntity.clearProducts();
+	    shoppingCartRepository.save(cartEntity);
+	}
+	
 }

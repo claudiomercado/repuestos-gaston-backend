@@ -73,14 +73,39 @@ public class ShoppingCartController {
 		}		
 	}
 	
-//	@DeleteMapping(path = "/")
-//	public ResponseEntity<ShoppingCartEntity> deleteShoppingCartById(Long id){
-//		try {
-//			shoppingCartService.deleteShoppingCartById(id);
-//			return ResponseEntity.status(HttpStatus.OK).build();
-//		} catch (Exception e) {
-//			log.error(String.format("ShoppingCartController.deleteShoppingCartById - Failed with message [%s]", e.getMessage()));
-//			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//		}		
-//	}
+	@PostMapping(path = "/decreaseProduct")
+	public ResponseEntity<Object> decreaseProduct(@RequestBody RequestAddProductDTO requestAddProductDTO){
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			shoppingCartService.decreaseProduct(username, requestAddProductDTO);
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		} catch (Exception e) {
+			log.error(String.format("ShoppingCartController.createShoppingCart - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+	}
+	
+	@PostMapping(path = "/clearShoppingCart")
+	public ResponseEntity<Object> clearShoppingCart(){
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			shoppingCartService.clearShoppingCart(username);
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		} catch (Exception e) {
+			log.error(String.format("ShoppingCartController.createShoppingCart - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+	}
+	
+	@DeleteMapping(path = "/removeProduct/{productId}")
+	public ResponseEntity<Object> deleteProductById(@PathVariable(name = "productId") Long productId){
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			shoppingCartService.deleteProductById(username,productId);
+			return ResponseEntity.status(HttpStatus.OK).build();
+		} catch (Exception e) {
+			log.error(String.format("ShoppingCartController.deleteShoppingCartById - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+	}
 }

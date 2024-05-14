@@ -45,4 +45,9 @@ public class ShoppingCartEntity {
 	)
 	private List<ProductEntity> products;
 	
+	public void clearProducts() {
+	    this.products.clear();
+	    this.totalPrice = 0.0;
+	}
+	
 }
