@@ -1,6 +1,5 @@
 package com.repuestosgaston.products.controller.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -28,4 +27,6 @@ public class ProductResponseDTO {
 	private String category;
 	@JsonProperty("bar_code")
 	private Integer barCode;
+	@JsonProperty("image")
+	private String image;
 }

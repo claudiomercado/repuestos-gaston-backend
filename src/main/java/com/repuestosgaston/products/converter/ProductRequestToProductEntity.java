@@ -1,5 +1,7 @@
 package com.repuestosgaston.products.converter;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,9 @@ public class ProductRequestToProductEntity implements Converter<ProductRequestDT
 	    }
 	    if (productRequestDTO.getBarCode() != null) {
 	        productEntity.setBarCode(productRequestDTO.getBarCode());
+	    }
+	    if (productRequestDTO.getImage() != null) {
+	        productEntity.setImage(productRequestDTO.getImage());   
 	    }
 	    productEntity.setAmount(null);
 		productEntity.setSub_total_price(null);

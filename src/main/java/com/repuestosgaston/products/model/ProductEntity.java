@@ -47,7 +47,7 @@ public class ProductEntity {
 	
 	@Column(name = "image")
 	@Lob
-	private byte[] image;
+	private String image;
 	
 	@Column(name = "amount", nullable = true)
 	private Integer amount;

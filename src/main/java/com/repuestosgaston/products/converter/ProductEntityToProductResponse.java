@@ -18,6 +18,7 @@ public class ProductEntityToProductResponse implements Converter<ProductEntity, 
         dto.setBarCode(productEntity.getBarCode());
         dto.setStock(productEntity.getStock());
         dto.setPrice(productEntity.getPrice());
+        dto.setImage(productEntity.getImage());
         // Mapeo del objeto Category a su nombre
         if (productEntity.getCategory() != null) {
             dto.setCategory(productEntity.getCategory().getName());

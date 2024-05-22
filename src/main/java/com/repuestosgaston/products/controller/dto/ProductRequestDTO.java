@@ -24,6 +24,9 @@ public class ProductRequestDTO {
 	@JsonProperty("bar_code")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Integer barCode;
+	@JsonProperty("image")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String image;
 	@JsonProperty("id_category")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Long idCategory;
