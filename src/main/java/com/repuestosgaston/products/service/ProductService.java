@@ -75,16 +75,7 @@ public class ProductService {
 			throw new IllegalArgumentException(
 					String.format("Product [%s] not found", productId));
 		}
-//		productEntity.get().setName(productRequestDTO.getName() != null ? productRequestDTO.getName() : productEntity.get().getName());
-//		productEntity.get().setDescription(productRequestDTO.getDescription() != null ? productRequestDTO.getDescription() : productEntity.get().getDescription());
-//		productEntity.get().setPrice(productRequestDTO.getPrice() != null ? productRequestDTO.getPrice() : productEntity.get().getPrice());
-//		productEntity.get().setStock(productRequestDTO.getStock() != null ? productRequestDTO.getStock() : productEntity.get().getStock());
-//		productEntity.get().setBarCode(productRequestDTO.getBarCode() != null ? productRequestDTO.getBarCode() : productEntity.get().getBarCode());
-//		productEntity.get().setAmount(null);
-//		productEntity.get().setSub_total_price(null);
-//		productEntity.get().setImage(productDTO.getImage() != null ? productDTO.getImage() : productEntity.get().getImage());		
-//		productEntity.get().setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : productEntity.get().getCategory());
-//		modelMapper.map(productDTO, ProductEntity.class);
+
 		productRepository.save(updateFields(productEntity.get(),productRequestDTO));
 	}
 	
@@ -98,29 +89,44 @@ public class ProductService {
 	}
 	
 	private ProductEntity updateFields(ProductEntity productEntity, ProductRequestDTO productRequestDTO) {
-		Integer barCode = productRequestDTO.getBarCode();
-		if (productRepository.findByBarCode(barCode).isPresent()) {
-			throw new IllegalArgumentException(
+		if(productRequestDTO.getIdCategory() != null) {
+			var category = categoryRepository.findById(productRequestDTO.getIdCategory());
+			if (category.isEmpty()) {
+				throw new IllegalArgumentException(
+						String.format("Category [%s] not found", productRequestDTO.getIdCategory()));
+			}
+			productEntity.setCategory(category.get());
+		}
+		
+		if (productRequestDTO.getBarCode() != null) {
+			Integer barCode = productRequestDTO.getBarCode();
+			if(productRepository.findByBarCode(barCode).isPresent()) {
+				throw new IllegalArgumentException(
 					String.format("Bar code existente"));
-		}	
-//		if (productRequestDTO.getName() != null) {
-//			productEntity.setName(productRequestDTO.getName());
-//	    }
-//	    if (productRequestDTO.getDescription() != null) {
-//	        productEntity.setDescription(productRequestDTO.getDescription());
-//	    }
-//	    if (productRequestDTO.getPrice() != null) {
-//	        productEntity.setPrice(productRequestDTO.getPrice());
-//	    }
-//	    if (productRequestDTO.getStock() != null) {
-//	        productEntity.setStock(productRequestDTO.getStock());
-//	    }
-//	    if (productRequestDTO.getBarCode() != null) {
-//	        productEntity.setBarCode(productRequestDTO.getBarCode());
-//	    }
-//	    productEntity.setAmount(null);
-//		productEntity.setSub_total_price(null);
-	    return productRequestToProductEntity.convert(productRequestDTO);
+				}
+			productEntity.setBarCode(barCode);
+			}
+		
+		if (productRequestDTO.getName() != null) {
+			productEntity.setName(productRequestDTO.getName());
+	    }
+	    if (productRequestDTO.getDescription() != null) {
+	        productEntity.setDescription(productRequestDTO.getDescription());
+	    }
+	    if (productRequestDTO.getPrice() != null) {
+	        productEntity.setPrice(productRequestDTO.getPrice());
+	    }
+	    if (productRequestDTO.getStock() != null) {
+	        productEntity.setStock(productRequestDTO.getStock());
+	    }
+	    if(productRequestDTO.getImage() != null) {
+	    	productEntity.setImage(productRequestDTO.getImage());
+	    }
+	    
+	    productEntity.setAmount(null);
+		productEntity.setSub_total_price(null);
+		
+	    return productEntity;
 	}
 //	
 //	public ProductEntity convertDTOtoEntity(ProductRequestDTO productRequestDTO) {
