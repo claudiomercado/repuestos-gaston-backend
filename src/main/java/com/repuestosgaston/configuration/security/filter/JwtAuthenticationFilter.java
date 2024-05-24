@@ -60,6 +60,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		
 		User user = (User) authResult.getPrincipal();
 		String token = jwtUtils.generateAccesToken(user.getUsername());
+		String rol = user.getAuthorities().toString();
 		
 		response.addHeader("Authorization", token);
 		
@@ -67,6 +68,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		httpResponse.put("token", token);
 		httpResponse.put("Message", "Autenticacion Correcta");
 		httpResponse.put("Username", user.getUsername());
+		httpResponse.put("Rol", rol);
 		
 		response.getWriter().write(new ObjectMapper().writeValueAsString(httpResponse));
 		response.setStatus(HttpStatus.OK.value());
