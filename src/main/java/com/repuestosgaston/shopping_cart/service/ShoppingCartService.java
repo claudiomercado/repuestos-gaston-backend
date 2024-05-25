@@ -1,6 +1,7 @@
 package com.repuestosgaston.shopping_cart.service;
 
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -54,10 +55,16 @@ public class ShoppingCartService {
 	public ShoppingCartEntity createShoppingCart() {
 		ShoppingCartEntity shoppingCartEntity = new ShoppingCartEntity();
 		shoppingCartEntity.setTotalPrice(0.0);
-
+		shoppingCartEntity.setNumberCart(generateNumberSale(10000,99999));
 		return shoppingCartRepository.save(shoppingCartEntity);
 	}
 
+	public Integer generateNumberSale(int min, int max) {
+        Random random = new Random();
+        int value = random.nextInt((max - min) + 1) + min;
+        return value;
+    }
+	
 	public void addProducts(String username, RequestAddProductDTO requestAddProductDTO) {
 		UserEntity userEntity = userRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
