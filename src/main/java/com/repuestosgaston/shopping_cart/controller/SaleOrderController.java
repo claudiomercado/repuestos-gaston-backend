@@ -3,6 +3,7 @@ package com.repuestosgaston.shopping_cart.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @CrossOrigin
 @RestController
-@RequestMapping(value = "/v1/sale_order")
+@RequestMapping(value = "/v1/orders")
 public class SaleOrderController {
 	private final SaleOrderService saleOrderService;
 
@@ -33,13 +34,13 @@ public class SaleOrderController {
 	}
 
 	@GetMapping(path = "/")
-	public ResponseEntity<Page<SaleOrderResponseDTO>> getAllSaleOrder(
+	public ResponseEntity<Page<SaleOrderResponseDTO>> getAllOrders(
 			@RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "100") int size,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection){
 		try {
-			return ResponseEntity.ok().body(saleOrderService.getAllSaleOrder(page,
+			return ResponseEntity.ok().body(saleOrderService.getAllOrders(page,
 					size,sort,sortDirection));
 		} catch (Exception e) {
 			log.error(String.format("SaleOrderController.getAllSaleOrder - Failed with message [%s]", e.getMessage()));
@@ -47,10 +48,10 @@ public class SaleOrderController {
 		}		
 	}
 	
-	@GetMapping(path = "/{saleOrderId}")
-	public ResponseEntity<SaleOrderResponseDTO> getSaleOrderById(Long saleOrderId){
+	@GetMapping(path = "/{orderId}")
+	public ResponseEntity<SaleOrderResponseDTO> getOrderById(Long orderId){
 		try {
-			return ResponseEntity.ok().body(saleOrderService.getSaleOrderById(saleOrderId));
+			return ResponseEntity.ok().body(saleOrderService.getOrderById(orderId));
 		} catch (Exception e) {
 			log.error(String.format("SaleOrderController.getSaleOrderById - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -58,10 +59,11 @@ public class SaleOrderController {
 	}
 	
 	@PostMapping(path = "/")
-	public ResponseEntity<Object> createSaleOrder(@RequestBody SaleOrderRequestDTO saleOrderRequestDTO){
+	public ResponseEntity<SaleOrderResponseDTO> createOrder(){
 		try {
-			saleOrderService.createSaleOrder(saleOrderRequestDTO);
-			return ResponseEntity.status(HttpStatus.CREATED).build();
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			SaleOrderResponseDTO saleOrderResponseDTO = saleOrderService.createSaleOrder(username);
+			return ResponseEntity.status(HttpStatus.CREATED).body(saleOrderResponseDTO);
 		} catch (Exception e) {
 			log.error(String.format("SaleOrderController.createSaleOrder - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -69,10 +71,10 @@ public class SaleOrderController {
 	}
 	
 	
-	@PutMapping(path = "/{saleOrder_id}")
-	public ResponseEntity<SaleOrderEntity> updateSaleOrder(@PathVariable Long saleOrder_id,@RequestBody SaleOrderRequestDTO saleOrder){
+	@PutMapping(path = "/{orderId}")
+	public ResponseEntity<SaleOrderEntity> updateOrder(@PathVariable Long orderId,@RequestBody SaleOrderRequestDTO saleOrder){
 		try {
-			saleOrderService.updateSaleOrder(saleOrder_id,saleOrder);
+			saleOrderService.updateSaleOrder(orderId,saleOrder);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (Exception e) {
 			log.error(String.format("SaleOrderController.updateSaleOrder - Failed with message [%s]", e.getMessage()));
@@ -81,9 +83,9 @@ public class SaleOrderController {
 	}
 	
 	@DeleteMapping(path = "/")
-	public ResponseEntity<SaleOrderEntity> deleteSaleOrderById(Long id){
+	public ResponseEntity<SaleOrderEntity> deleteOrderById(Long orderId){
 		try {
-			saleOrderService.deleteSaleOrderById(id);
+			saleOrderService.deleteSaleOrderById(orderId);
 			return ResponseEntity.status(HttpStatus.OK).build();
 		} catch (Exception e) {
 			log.error(String.format("SaleOrderController.deleteSaleOrderById - Failed with message [%s]", e.getMessage()));

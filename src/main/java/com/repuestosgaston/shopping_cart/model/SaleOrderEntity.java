@@ -31,10 +31,7 @@ public class SaleOrderEntity {
 	private Long id;
 	
 	@Column(name = "number_sale")
-	private Integer numberSale;
-	
-	@Column(name = "description")
-	private String description;
+	private Long numberSale;
 	
 	@Column(name = "sale_status")
 	@Enumerated(EnumType.STRING)

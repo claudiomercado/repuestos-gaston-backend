@@ -9,50 +9,68 @@ import org.springframework.stereotype.Service;
 
 import com.repuestosgaston.shopping_cart.controller.dto.SaleOrderRequestDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.SaleOrderResponseDTO;
+import com.repuestosgaston.shopping_cart.converter.SaleOrderEntityToSaleOrderResponseDTO;
 import com.repuestosgaston.shopping_cart.model.SaleOrderEntity;
+import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
+import com.repuestosgaston.shopping_cart.model.enums.SaleOrderStatusEnum;
 import com.repuestosgaston.shopping_cart.repository.SaleOrderRepository;
+import com.repuestosgaston.users.model.UserEntity;
+import com.repuestosgaston.users.repository.UserRepository;
 
 @Service
 public class SaleOrderService {
 
+	private final SaleOrderEntityToSaleOrderResponseDTO saleOrderEntityToSaleOrderResponseDTO;
 	private final SaleOrderRepository saleOrderRepository;
+	private final UserRepository userRepository;
 	
 	private final ModelMapper modelMapper;
 
-	public SaleOrderService(SaleOrderRepository saleOrderRepository, ModelMapper modelMapper) {
+	public SaleOrderService(SaleOrderRepository saleOrderRepository, ModelMapper modelMapper, SaleOrderEntityToSaleOrderResponseDTO saleOrderEntityToSaleOrderResponseDTO, UserRepository userRepository) {
 		this.saleOrderRepository = saleOrderRepository;
+		this.userRepository = userRepository;
 		this.modelMapper = modelMapper;
+		this.saleOrderEntityToSaleOrderResponseDTO = saleOrderEntityToSaleOrderResponseDTO;
 	}
 
-	public Page<SaleOrderResponseDTO> getAllSaleOrder(int page,int size,String sort,String sortDirection) {
+	public Page<SaleOrderResponseDTO> getAllOrders(int page,int size,String sort,String sortDirection) {
 		Sort sorter = Sort
                 .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
         Pageable pageable = PageRequest.of(page, size, sorter);
 		
         return saleOrderRepository.findAll(pageable)
-				.map(saleOrder -> modelMapper.map(saleOrder, SaleOrderResponseDTO.class));
+				.map(saleOrderEntityToSaleOrderResponseDTO::convert);
 	}
 	
-	public SaleOrderResponseDTO getSaleOrderById(Long saleOrderId) {
-		var saleOrderEntity = saleOrderRepository.findById(saleOrderId);
-		if (!saleOrderEntity.isPresent()) {
-			throw new IllegalArgumentException(
-					String.format("Sale Order [%s] not found", saleOrderId));
-		}
-		return modelMapper.map(saleOrderEntity.get(), SaleOrderResponseDTO.class);
+	public SaleOrderResponseDTO getOrderById(Long saleOrderId) {
+		return saleOrderRepository.findById(saleOrderId)
+				.map(saleOrderEntityToSaleOrderResponseDTO::convert)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", saleOrderId)));
+
 	}
 
-	//Recibe un SaleOrderRequestDTO
-	public void createSaleOrder(SaleOrderRequestDTO saleOrderRequestDTO) {
-		SaleOrderEntity saleOrderEntity = modelMapper.map(saleOrderRequestDTO, SaleOrderEntity.class);
+	public SaleOrderResponseDTO createSaleOrder(String username) {
+		UserEntity user = userRepository.findByUsername(username).get();
+		ShoppingCartEntity shoppingCartEntity = user.getCart();
+		SaleOrderEntity saleOrderEntity = createOder(user, shoppingCartEntity); 
 		saleOrderRepository.save(saleOrderEntity);
+		SaleOrderResponseDTO saleOrderResponseDTO = saleOrderEntityToSaleOrderResponseDTO.convert(saleOrderEntity);
+		
+		return saleOrderResponseDTO;
 	}
 
-	public void updateSaleOrder(Long saleOrder_id,SaleOrderRequestDTO saleOrder) {
-		SaleOrderEntity saleOrderEntity = saleOrderRepository.findById(saleOrder_id).get();
+	public SaleOrderEntity createOder(UserEntity user, ShoppingCartEntity shoppingCartEntity) {
+		SaleOrderEntity saleOrderEntity = new SaleOrderEntity();
+		saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.PENDING_PAYMENT);
+		saleOrderEntity.setShoppingCart(shoppingCartEntity);		
+		return saleOrderEntity;
+	}
+
+	public void updateSaleOrder(Long orderId,SaleOrderRequestDTO saleOrder) {
+		SaleOrderEntity saleOrderEntity = saleOrderRepository.findById(orderId).get();
 		if (saleOrderEntity==null) {
 			throw new IllegalArgumentException(
-					String.format("Sale Order [%s] not found", saleOrder_id));
+					String.format("Sale Order [%s] not found", orderId));
 		}
 
 		modelMapper.map(saleOrder, SaleOrderEntity.class);
@@ -60,8 +78,8 @@ public class SaleOrderService {
 		saleOrderRepository.save(saleOrderEntity);
 	}
 	
-	public void deleteSaleOrderById(Long id) {
-		saleOrderRepository.deleteById(id);
+	public void deleteSaleOrderById(Long orderId) {
+		saleOrderRepository.deleteById(orderId);
 	}
-	
+		
 }

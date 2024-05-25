@@ -14,12 +14,16 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SaleOrderResponseDTO {
 
-	@JsonProperty("sale_order_id")
-	private Long id;
 	@JsonProperty("number_sale")
-	private Integer numberSale;
+	private Long numberSale;
 	@JsonProperty("description")
 	private String description;
+	@JsonProperty("name")
+	private String name;
+	@JsonProperty("surname")
+	private String surname;
+	@JsonProperty("dni")
+	private String dni;
 	@JsonProperty("sale_status")
 	private SaleOrderStatusEnum saleStatus;
 	@JsonProperty("shopping_cart")
