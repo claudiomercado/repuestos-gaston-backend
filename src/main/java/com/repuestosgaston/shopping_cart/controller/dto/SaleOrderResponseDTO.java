@@ -15,9 +15,7 @@ import lombok.Setter;
 public class SaleOrderResponseDTO {
 
 	@JsonProperty("number_sale")
-	private Long numberSale;
-	@JsonProperty("description")
-	private String description;
+	private Integer numberSale;
 	@JsonProperty("name")
 	private String name;
 	@JsonProperty("surname")

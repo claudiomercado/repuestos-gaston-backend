@@ -1,5 +1,7 @@
 package com.repuestosgaston.shopping_cart.service;
 
+import java.util.Random;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -61,10 +63,18 @@ public class SaleOrderService {
 
 	public SaleOrderEntity createOder(UserEntity user, ShoppingCartEntity shoppingCartEntity) {
 		SaleOrderEntity saleOrderEntity = new SaleOrderEntity();
+		
 		saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.PENDING_PAYMENT);
-		saleOrderEntity.setShoppingCart(shoppingCartEntity);		
+		saleOrderEntity.setShoppingCart(shoppingCartEntity);
+		saleOrderEntity.setNumberSale(generateNumberSale(1000000000,2147483647));
 		return saleOrderEntity;
 	}
+	
+	public Integer generateNumberSale(int min, int max) {
+        Random random = new Random();
+        int value = random.nextInt((max - min) + 1) + min;
+        return value;
+    }
 
 	public void updateSaleOrder(Long orderId,SaleOrderRequestDTO saleOrder) {
 		SaleOrderEntity saleOrderEntity = saleOrderRepository.findById(orderId).get();
