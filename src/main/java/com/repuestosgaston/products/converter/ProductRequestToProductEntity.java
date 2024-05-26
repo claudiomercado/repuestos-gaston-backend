@@ -1,7 +1,5 @@
 package com.repuestosgaston.products.converter;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -18,12 +16,17 @@ public class ProductRequestToProductEntity implements Converter<ProductRequestDT
 	
 	@Override
 	public ProductEntity convert(ProductRequestDTO productRequestDTO) {
-		var category = categoryRepository.findById(productRequestDTO.getIdCategory());
-		if (category.isEmpty()) {
-			throw new IllegalArgumentException(
-					String.format("Category [%s] not found", productRequestDTO.getIdCategory()));
-		}
 		ProductEntity productEntity = new ProductEntity();
+		
+		if(productRequestDTO.getIdCategory() != null) {
+			var category = categoryRepository.findById(productRequestDTO.getIdCategory());
+			if (category.isEmpty()) {
+				throw new IllegalArgumentException(
+						String.format("Category [%s] not found", productRequestDTO.getIdCategory()));
+			}
+			productEntity.setCategory(category.get());
+		}
+		
 		if (productRequestDTO.getName() != null) {
 			productEntity.setName(productRequestDTO.getName());
 	    }
@@ -44,7 +47,6 @@ public class ProductRequestToProductEntity implements Converter<ProductRequestDT
 	    }
 	    productEntity.setAmount(null);
 		productEntity.setSub_total_price(null);
-		productEntity.setCategory(category.get());
 		return productEntity;
 //		productEntity.setName(productRequestDTO.getName());
 //		productEntity.setDescription(productRequestDTO.getDescription());

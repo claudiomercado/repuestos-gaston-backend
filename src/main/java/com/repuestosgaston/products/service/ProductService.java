@@ -50,7 +50,7 @@ public class ProductService {
 		Sort sorter = Sort.by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
 		Pageable pageable = PageRequest.of(page, size, sorter);
 
-		return productRepository.filterToName(pageable, name).map(productEntityToProductResponse::convert);
+		return productRepository.filterByName(pageable, name).map(productEntityToProductResponse::convert);
 	}
 
 	public Page<ProductResponseDTO> getProductByCategory(int page, int size, String sort, String sortDirection,
@@ -58,7 +58,7 @@ public class ProductService {
 		Sort sorter = Sort.by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
 		Pageable pageable = PageRequest.of(page, size, sorter);
 
-		return productRepository.filterToCategory(pageable, category).map(productEntityToProductResponse::convert);
+		return productRepository.filterByCategory(pageable, category).map(productEntityToProductResponse::convert);
 	}
 
 	public void createProduct(ProductRequestDTO productRequestDTO) {
