@@ -58,8 +58,30 @@ public class SaleOrderController {
 		}		
 	}
 	
-	@PostMapping(path = "/")
-	public ResponseEntity<SaleOrderResponseDTO> createOrder(){
+	@GetMapping(path = "/{numberSale}")
+	public ResponseEntity<SaleOrderResponseDTO> getOrderByNumberSale(Integer numberSale){
+		try {
+			return ResponseEntity.ok().body(saleOrderService.getOrderByNumberSale(numberSale));
+		} catch (Exception e) {
+			log.error(String.format("SaleOrderController.getSaleOrderById - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+	}
+	
+	@PostMapping(path = "/user")
+	public ResponseEntity<SaleOrderResponseDTO> createOrderUser(){
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			SaleOrderResponseDTO saleOrderResponseDTO = saleOrderService.createSaleOrder(username);
+			return ResponseEntity.status(HttpStatus.CREATED).body(saleOrderResponseDTO);
+		} catch (Exception e) {
+			log.error(String.format("SaleOrderController.createSaleOrder - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+	}
+	
+	@PostMapping(path = "/admin")
+	public ResponseEntity<SaleOrderResponseDTO> createOrderAdmin(){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
 			SaleOrderResponseDTO saleOrderResponseDTO = saleOrderService.createSaleOrder(username);

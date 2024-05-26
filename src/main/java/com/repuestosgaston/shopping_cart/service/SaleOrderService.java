@@ -1,5 +1,6 @@
 package com.repuestosgaston.shopping_cart.service;
 
+import java.util.Optional;
 import java.util.Random;
 
 import org.modelmapper.ModelMapper;
@@ -49,6 +50,13 @@ public class SaleOrderService {
 				.map(saleOrderEntityToSaleOrderResponseDTO::convert)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", saleOrderId)));
 
+	}
+	
+	public SaleOrderResponseDTO getOrderByNumberSale(Integer numberSale) {
+		Optional<SaleOrderEntity>  saleOrderEntity = saleOrderRepository.findByNumberSale(numberSale);
+		return saleOrderEntity
+				.map(saleOrderEntityToSaleOrderResponseDTO::convert)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", numberSale)));
 	}
 
 	public SaleOrderResponseDTO createSaleOrder(String username) {
