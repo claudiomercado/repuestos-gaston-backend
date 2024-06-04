@@ -15,6 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserResponseAdminDTO {
 	
+	@JsonProperty("id")
+	private Long id;
 	@JsonProperty("email")
 	private String email;
 	@JsonProperty("username")

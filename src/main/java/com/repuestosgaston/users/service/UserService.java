@@ -50,18 +50,16 @@ public class UserService {
 		this.rolService = rolService;
 	}
 
-	public Page<UserResponseDTO> getAllUser(int page,int size,String sort,String sortDirection) {
+	public Page<UserResponseAdminDTO> getAllUser(int page,int size,String sort,String sortDirection) {
 		Sort sorter = Sort
                 .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
         Pageable pageable = PageRequest.of(page, size, sorter);
 		
         return userRepository.findAll(pageable)
-				.map(user -> modelMapper.map(user, UserResponseDTO.class));
+				.map(converterUserResponseAdmin::convert);
 	}
 	
 	public UserResponseAdminDTO getUserById(Long userId) {
-		Optional<UserEntity> userEntity = userRepository.findById(userId);
-		
 		return userRepository.findById(userId)
 				.map(converterUserResponseAdmin::convert)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", userId)));

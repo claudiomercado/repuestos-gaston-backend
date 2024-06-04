@@ -37,7 +37,7 @@ public class UserController {
 	}
 
 	@GetMapping(path = "/")
-	public ResponseEntity<Page<UserResponseDTO>> getAllUser(
+	public ResponseEntity<Page<UserResponseAdminDTO>> getAllUser(
 			@RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "100") int size,
             @RequestParam(value = "sort", defaultValue = "id") String sort,
