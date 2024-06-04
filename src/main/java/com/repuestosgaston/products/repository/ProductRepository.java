@@ -21,6 +21,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long>{
 	@Query(value = "SELECT * FROM Product WHERE LOWER(name) LIKE CONCAT('%', LOWER(:name), '%')", nativeQuery = true)
 	Page<ProductEntity> filterByName(Pageable pageable, String name);
 	
+	@Transactional
 	@Query(value = "SELECT * FROM Product WHERE category_id = :category", nativeQuery = true)
 	Page<ProductEntity> filterByCategory(Pageable pageable, Long category);
 	
