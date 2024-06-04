@@ -25,4 +25,6 @@ public class ProductCartResponseDTO {
 	private Integer amount;
 	@JsonProperty("sub_total_price")
 	private Double sub_total_price;
+	@JsonProperty("image")
+	private String image;
 }
