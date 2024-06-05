@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,7 +50,7 @@ public class SaleOrderController {
 	}
 	
 	@GetMapping(path = "/{orderId}")
-	public ResponseEntity<SaleOrderResponseDTO> getOrderById(Long orderId){
+	public ResponseEntity<SaleOrderResponseDTO> getOrderById(@PathVariable(name = "orderId")Long orderId){
 		try {
 			return ResponseEntity.ok().body(saleOrderService.getOrderById(orderId));
 		} catch (Exception e) {
@@ -58,8 +59,8 @@ public class SaleOrderController {
 		}		
 	}
 	
-	@GetMapping(path = "/{numberSale}")
-	public ResponseEntity<SaleOrderResponseDTO> getOrderByNumberSale(Integer numberSale){
+	@GetMapping(path = "/numberSale/{numberSale}")
+	public ResponseEntity<SaleOrderResponseDTO> getOrderByNumberSale(@PathVariable(name = "numberSale") Integer numberSale){
 		try {
 			return ResponseEntity.ok().body(saleOrderService.getOrderByNumberSale(numberSale));
 		} catch (Exception e) {
@@ -113,5 +114,16 @@ public class SaleOrderController {
 			log.error(String.format("SaleOrderController.deleteSaleOrderById - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}		
+	}
+	
+	@PatchMapping(path = "/updateStatus/{orderId}")
+	public ResponseEntity<SaleOrderEntity> updateOrderStatus(@PathVariable(name = "orderId") Long orderId,@RequestParam String status){
+		try {
+			SaleOrderEntity saleOrderEntity = saleOrderService.updateSaleOrderStatus(orderId, status);
+			return ResponseEntity.status(HttpStatus.OK).body(saleOrderEntity);
+		} catch (Exception e) {
+			log.error(String.format("SaleOrderController.updateSaleStatus - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

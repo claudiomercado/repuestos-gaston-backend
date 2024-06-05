@@ -1,5 +1,6 @@
 package com.repuestosgaston.shopping_cart.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.repuestosgaston.shopping_cart.model.enums.SaleOrderStatusEnum;
 
 import jakarta.persistence.Column;
@@ -38,6 +39,7 @@ public class SaleOrderEntity {
 	private SaleOrderStatusEnum saleStatus;
 	
 	@OneToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
 	private ShoppingCartEntity shoppingCart;
 	
 }

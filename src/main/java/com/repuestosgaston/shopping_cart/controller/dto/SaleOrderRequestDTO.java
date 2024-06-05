@@ -11,12 +11,6 @@ import lombok.Setter;
 @Setter
 public class SaleOrderRequestDTO {
 
-	@JsonProperty("number_sale")
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private Integer numberSale;
-	@JsonProperty("description")
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private String description;
 	@JsonProperty("sale_status")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private SaleOrderStatusEnum saleStatus;

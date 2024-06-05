@@ -99,5 +99,19 @@ public class SaleOrderService {
 	public void deleteSaleOrderById(Long orderId) {
 		saleOrderRepository.deleteById(orderId);
 	}
-		
+
+	public SaleOrderEntity updateSaleOrderStatus(Long orderId, String status) {
+		SaleOrderEntity saleOrderEntity = saleOrderRepository.findById(orderId).get();
+		parseStatus(saleOrderEntity, status);
+		return saleOrderRepository.save(saleOrderEntity);
+	}
+
+	public void parseStatus(SaleOrderEntity saleOrderEntity, String status) {
+		if (status.equals(SaleOrderStatusEnum.PAID.getName())) {
+			saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.PAID);
+		} else {
+			saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.REJECTED);
+		}
+	}
+	
 }
