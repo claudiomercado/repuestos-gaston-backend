@@ -17,6 +17,7 @@ public class ProductCartToShoppingCartResponse implements Converter<ProductEntit
         dto.setStock(productEntity.getStock());
         dto.setPrice(productEntity.getPrice());
         dto.setAmount(productEntity.getAmount());
+        dto.setCategory(productEntity.getCategory().getName());
         dto.setImage(productEntity.getImage());
         dto.setSub_total_price(productEntity.getSub_total_price());
         
