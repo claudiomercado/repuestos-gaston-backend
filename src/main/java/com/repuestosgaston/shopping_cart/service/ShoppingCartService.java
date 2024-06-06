@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.repuestosgaston.products.model.ProductEntity;
 import com.repuestosgaston.products.repository.ProductRepository;
@@ -65,6 +66,7 @@ public class ShoppingCartService {
         return value;
     }
 	
+	@Transactional
 	public void addProducts(String username, RequestAddProductDTO requestAddProductDTO) {
 		UserEntity userEntity = userRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
@@ -119,6 +121,7 @@ public class ShoppingCartService {
 		return product.getPrice() * amount;
 	}
 
+	@Transactional
 	public void deleteProductById(String username, Long productId) {
 		UserEntity userEntity = userRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
@@ -148,7 +151,8 @@ public class ShoppingCartService {
 
 		shoppingCartRepository.save(cartEntity);
 	}
-
+	
+	@Transactional
 	public void decreaseProduct(String username, RequestAddProductDTO requestAddProductDTO) {
 		UserEntity userEntity = userRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
@@ -183,6 +187,7 @@ public class ShoppingCartService {
 		shoppingCartRepository.save(cartEntity);
 	}
 
+	@Transactional
 	public void clearShoppingCart(String username) {
 		UserEntity userEntity = userRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
