@@ -21,6 +21,9 @@ public class UserRequestUpdateDTO {
 	@JsonProperty("surname")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String surname;
+	@JsonProperty("dni")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String dni;
 	@JsonProperty("birthdate")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private LocalDate birthdate;
