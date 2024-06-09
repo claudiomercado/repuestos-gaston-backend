@@ -34,6 +34,15 @@ public class CategoryService {
 				.map(category -> modelMapper.map(category, CategoryReponseDTO.class));
 	}
 	
+	public Page<CategoryReponseDTO> getCategoryByName(int page,int size,String sort,String sortDirection,String name) {
+		Sort sorter = Sort
+                .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
+        Pageable pageable = PageRequest.of(page, size, sorter);
+		
+        return categoryRepository.filterByName(pageable, name)
+				.map(category -> modelMapper.map(category, CategoryReponseDTO.class));
+	}
+	
 	public CategoryReponseDTO getCategoryById(Long categoryId) {
 		Optional<CategoryEntity> categoryEntity = categoryRepository.findById(categoryId);
 		if (categoryEntity.isEmpty()) {

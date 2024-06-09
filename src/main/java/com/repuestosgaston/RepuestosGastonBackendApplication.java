@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.repuestosgaston.shopping_cart.service.ShoppingCartService;
 import com.repuestosgaston.users.model.RoleEntity;
 import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.model.enums.RoleEnum;
@@ -28,7 +29,7 @@ public class RepuestosGastonBackendApplication {
 	}
 	
 	 @Bean
-	    public CommandLineRunner initData(UserRepository userRepository, RolRepository rolRepository,PasswordEncoder passwordEncoder) {
+	    public CommandLineRunner initData(UserRepository userRepository, RolRepository rolRepository,PasswordEncoder passwordEncoder,ShoppingCartService shoppingCartService) {
 	        return args -> {
 	        	UserEntity adminUser = UserEntity.builder()
 	                    .email("admin@gmail.com")
@@ -48,6 +49,7 @@ public class RepuestosGastonBackendApplication {
 	        	rol.setName(RoleEnum.ADMIN);
 	        	roles.add(rol);
 	        	adminUser.setRoles(roles);
+	        	adminUser.setCart(shoppingCartService.createShoppingCart());
 	        	/*
 	        	Set<RoleEntity> roles = new HashSet<>();
 	        	roles.add(rol);

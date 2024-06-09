@@ -60,6 +60,26 @@ public class ProductService {
 
 		return productRepository.filterByCategory(pageable, category).map(productEntityToProductResponse::convert);
 	}
+	
+	public Page<ProductResponseDTO> getProductByBarcodeWithPagination(int page, int size, String sort, String sortDirection,Integer barcode){
+		
+		Sort sorter = Sort.by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
+		Pageable pageable = PageRequest.of(page, size, sorter);
+
+		return productRepository.findByBarCodeWithPageable(pageable, barcode).map(productEntityToProductResponse::convert);
+	}
+	
+	public Page<ProductResponseDTO> getProductByLowStock(int page, int size, String sort, String sortDirection){
+		
+		Sort sorter = Sort.by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
+		Pageable pageable = PageRequest.of(page, size, sorter);
+
+		return productRepository.findByLowStock(pageable).map(productEntityToProductResponse::convert);
+	}
+	
+	public Optional<ProductResponseDTO> getProductByBarcode(Integer barcode){
+			return productRepository.findByBarCode(barcode).map(productEntityToProductResponse::convert);
+		}
 
 	public void createProduct(ProductRequestDTO productRequestDTO) {
 		productRepository.save(productRequestToProductEntity.convert(productRequestDTO));

@@ -25,6 +25,16 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long>{
 	@Query(value = "SELECT * FROM Product WHERE category_id = :category", nativeQuery = true)
 	Page<ProductEntity> filterByCategory(Pageable pageable, Long category);
 	
+	@Transactional
+	@Query(value = "SELECT * FROM Product WHERE bar_code = :barCode", nativeQuery = true)
+	Page<ProductEntity> findByBarCodeWithPageable (Pageable pageable, Integer barCode);
+	
+	@Transactional
+	@Query(value = "SELECT * FROM Product WHERE bar_code = :barCode", nativeQuery = true)
 	Optional<ProductEntity> findByBarCode (Integer barCode);
+	
+	@Transactional
+	@Query(value = "SELECT * FROM Product WHERE stock <= 5", nativeQuery = true)
+	Page<ProductEntity> findByLowStock (Pageable pageable);
 
 }

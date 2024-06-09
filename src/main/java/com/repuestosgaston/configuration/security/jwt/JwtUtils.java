@@ -2,9 +2,11 @@ package com.repuestosgaston.configuration.security.jwt;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -26,11 +28,12 @@ public class JwtUtils {
 	private String timeExpiration;
 
 	//Generar un token
-	public String generateAccesToken(String username) {
+	public String generateAccesToken(String username,List<String> roles) {
 		return Jwts.builder()
 			   .setSubject(username)
 			   .setIssuedAt(new Date(System.currentTimeMillis()))
 			   .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(timeExpiration)))
+			   .claim("roles", roles)
 			   .signWith(getSignatureKey(), SignatureAlgorithm.HS256)
 			   .compact();
 	}

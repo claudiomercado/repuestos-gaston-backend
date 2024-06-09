@@ -48,6 +48,22 @@ public class CategoryController {
 		}		
 	}
 	
+	@GetMapping(path = "/filter/{name}/name")
+	public ResponseEntity<Page<CategoryReponseDTO>> getCategoryByName(
+			@RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "100") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+            @PathVariable("name") String name){
+		try {
+			return ResponseEntity.ok().body(categoryService.getCategoryByName(page,
+					size,sort,sortDirection,name));
+		} catch (Exception e) {
+			log.error(String.format("CategoryController.getCategoryByName - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+	}
+	
 	@GetMapping(path = "/{id}")
 	public ResponseEntity<CategoryReponseDTO> getCategoryById(@PathVariable("id") Long categoryId){
 		try {
