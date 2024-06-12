@@ -55,6 +55,12 @@ public class ProductEntity {
 	@Column(name = "sub_total_price", nullable = true)
 	private Double sub_total_price;
 	
+	@Column(name = "product_id_stripe")
+	private String productIdStripe;
+	
+	@Column(name = "price_id_stripe")
+	private String priceIdStripe;
+	
 	@ManyToOne(fetch = FetchType.EAGER)
 	private CategoryEntity category;
 	

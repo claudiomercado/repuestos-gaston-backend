@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import com.repuestosgaston.payment.service.PaymentService;
 import com.repuestosgaston.products.controller.dto.ProductRequestDTO;
 import com.repuestosgaston.products.model.ProductEntity;
 import com.repuestosgaston.products.repository.CategoryRepository;
@@ -13,6 +14,9 @@ public class ProductRequestToProductEntity implements Converter<ProductRequestDT
 
 	@Autowired
 	private CategoryRepository categoryRepository;
+	
+    @Autowired
+    private PaymentService paymentService;
 	
 	@Override
 	public ProductEntity convert(ProductRequestDTO productRequestDTO) {
@@ -47,6 +51,17 @@ public class ProductRequestToProductEntity implements Converter<ProductRequestDT
 	    }
 	    productEntity.setAmount(null);
 		productEntity.setSub_total_price(null);
+		
+		 try {
+	            var product = paymentService.createProduct(productRequestDTO.getName(), productRequestDTO.getDescription());
+	            var price = paymentService.createPrice(product.getId(), Math.round(productRequestDTO.getPrice() * 100)); // en centavos
+
+	            // Guardar los IDs de Stripe en la entidad del producto
+	            productEntity.setProductIdStripe(product.getId());
+	            productEntity.setPriceIdStripe(price.getId());
+	        } catch (Exception e) {
+	            throw new RuntimeException(e.getMessage());
+	        }
 		return productEntity;
 //		productEntity.setName(productRequestDTO.getName());
 //		productEntity.setDescription(productRequestDTO.getDescription());

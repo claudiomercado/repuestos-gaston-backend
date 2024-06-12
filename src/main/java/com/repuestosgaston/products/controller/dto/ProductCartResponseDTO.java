@@ -27,6 +27,8 @@ public class ProductCartResponseDTO {
 	private Double sub_total_price;
 	@JsonProperty("category")
 	private String category;
+	@JsonProperty("price_id_stripe")
+	private String priceIdStripe;
 	@JsonProperty("image")
 	private String image;
 }
