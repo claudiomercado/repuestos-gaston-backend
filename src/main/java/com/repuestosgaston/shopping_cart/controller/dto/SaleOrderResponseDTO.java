@@ -14,6 +14,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SaleOrderResponseDTO {
 
+	@JsonProperty("id")
+	private Long id;
 	@JsonProperty("number_sale")
 	private Integer numberSale;
 	@JsonProperty("name")

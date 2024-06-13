@@ -29,6 +29,7 @@ public class SaleOrderEntityToSaleOrderResponseDTO implements Converter<SaleOrde
 		UserEntity user = userRepository.findByUsername(username).get();
 		
 		SaleOrderResponseDTO saleOrderResponseDTO = new SaleOrderResponseDTO();
+		saleOrderResponseDTO.setId(saleOrderEntity.getId());
 		saleOrderResponseDTO.setNumberSale(saleOrderEntity.getNumberSale());
 		saleOrderResponseDTO.setSaleStatus(saleOrderEntity.getSaleStatus());
 		saleOrderResponseDTO.setShoppingCart(cartEntityToShoppingCartResponseDTO.convert(saleOrderEntity.getShoppingCart()));
