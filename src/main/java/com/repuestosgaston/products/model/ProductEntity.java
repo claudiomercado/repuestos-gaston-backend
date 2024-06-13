@@ -64,4 +64,8 @@ public class ProductEntity {
 	@ManyToOne(fetch = FetchType.EAGER)
 	private CategoryEntity category;
 	
+	public void setAmountZero() {
+		amount = 0;
+	}
+	
 }

@@ -1,8 +1,6 @@
 package com.repuestosgaston.users.service;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +11,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.repuestosgaston.shopping_cart.converter.ShoppingCartEntityToShoppingCartResponseDTO;
 import com.repuestosgaston.shopping_cart.service.ShoppingCartService;
 import com.repuestosgaston.users.controller.dto.UserRequestCreateDTO;
 import com.repuestosgaston.users.controller.dto.UserRequestUpdateDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseAdminDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseDTO;
 import com.repuestosgaston.users.convert.UserEntityToUserResponseAdminConverter;
-import com.repuestosgaston.users.model.RoleEntity;
 import com.repuestosgaston.users.model.UserEntity;
-import com.repuestosgaston.users.model.enums.RoleEnum;
 import com.repuestosgaston.users.repository.UserRepository;
 
 @Service
