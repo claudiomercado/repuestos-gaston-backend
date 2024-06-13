@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -26,6 +27,8 @@ import com.repuestosgaston.configuration.security.filter.JwtAuthenticationFilter
 import com.repuestosgaston.configuration.security.filter.JwtAuthorizationFilter;
 import com.repuestosgaston.configuration.security.jwt.JwtUtils;
 import com.repuestosgaston.users.service.UserDetailsServiceImpl;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @Configuration
@@ -58,6 +61,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.GET, "/v1/product/").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/v1/product/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/v1/product/filter/**").permitAll();
+                    auth.requestMatchers(HttpMethod.POST, "/v1/auth/logout").permitAll();
                     auth.anyRequest().authenticated();
                     try {
                         auth.and().cors(cors -> cors.configurationSource(corsConfigurationSource()));
@@ -69,10 +73,10 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .permitAll())
                 .logout(logout -> logout
-                			.logoutUrl("/logout")
-                            .logoutSuccessUrl("/login")
-                            .invalidateHttpSession(true)
-                            .deleteCookies("JSESSIONID")
+                		.logoutSuccessHandler(logoutSuccessHandler())
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
                 )
                 .sessionManagement(session -> {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -118,4 +122,12 @@ public class SecurityConfig {
 			
 		return bean;
 	}
+	
+	@Bean
+    public LogoutSuccessHandler logoutSuccessHandler() {
+        return (request, response, authentication) -> {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().flush();
+        };
+    }
 }
