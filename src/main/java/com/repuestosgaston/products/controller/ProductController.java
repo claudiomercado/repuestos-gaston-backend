@@ -72,6 +72,17 @@ public class ProductController {
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("ProductController.getProductByName - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@GetMapping(path = "/filter/{barCode}/barCode")
+	public ResponseEntity<Object> getProductByBarCode(
+			@PathVariable("barCode") Integer barCode){
+		try {
+			return ResponseEntity.ok().body(productService.getProductByBarcode(barCode));
+		} catch (IllegalArgumentException e) {
+			log.error(String.format("ProductController.getProductByName - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
 	
@@ -88,6 +99,21 @@ public class ProductController {
 					size,sort,sortDirection,category));
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("ProductController.getProductByCategory - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}		
+	}
+	
+	@GetMapping(path = "/filter/lowStock")
+	public ResponseEntity<Page<ProductResponseDTO>> getProductByLowStock(
+			@RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "100") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection){
+		try {
+			return ResponseEntity.ok().body(productService.getProductByLowStock(page,
+					size,sort,sortDirection));
+		} catch (IllegalArgumentException e) {
+			log.error(String.format("ProductController.getProductByLowStock - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
