@@ -50,6 +50,7 @@ public class SaleOrderService {
 		this.productRepository = productRepository;
 	}
 
+	@Transactional
 	public Page<SaleOrderResponseDTO> getAllOrders(int page,int size,String sort,String sortDirection) {
 		Sort sorter = Sort
                 .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
@@ -59,6 +60,7 @@ public class SaleOrderService {
 				.map(saleOrderEntityToSaleOrderResponseDTO::convert);
 	}
 	
+	@Transactional
 	public SaleOrderResponseDTO getOrderById(Long saleOrderId) {
 		return saleOrderRepository.findById(saleOrderId)
 				.map(saleOrderEntityToSaleOrderResponseDTO::convert)
@@ -66,6 +68,7 @@ public class SaleOrderService {
 
 	}
 	
+	@Transactional
 	public SaleOrderResponseDTO getOrderByNumberSale(Integer numberSale) {
 		Optional<SaleOrderEntity>  saleOrderEntity = saleOrderRepository.findByNumberSale(numberSale);
 		return saleOrderEntity
@@ -73,6 +76,7 @@ public class SaleOrderService {
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", numberSale)));
 	}
 
+	@Transactional
 	public SaleOrderResponseDTO createSaleOrderUser(String username) {
 		UserEntity user = userRepository.findByUsername(username).get();
 		ShoppingCartEntity shoppingCartEntity = user.getCart();
@@ -139,6 +143,7 @@ public class SaleOrderService {
         return value;
     }
 
+	@Transactional
 	public void updateSaleOrder(Long orderId,SaleOrderRequestDTO saleOrder) {
 		SaleOrderEntity saleOrderEntity = saleOrderRepository.findById(orderId).get();
 		if (saleOrderEntity==null) {
@@ -151,10 +156,12 @@ public class SaleOrderService {
 		saleOrderRepository.save(saleOrderEntity);
 	}
 	
+	@Transactional
 	public void deleteSaleOrderById(Long orderId) {
 		saleOrderRepository.deleteById(orderId);
 	}
 
+	@Transactional
 	public SaleOrderEntity updateSaleOrderStatus(Long orderId, String status) {
 		SaleOrderEntity saleOrderEntity = saleOrderRepository.findById(orderId).get();
 		parseStatus(saleOrderEntity, status);
