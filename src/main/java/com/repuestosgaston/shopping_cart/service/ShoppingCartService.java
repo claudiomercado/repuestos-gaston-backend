@@ -113,7 +113,7 @@ public class ShoppingCartService {
 		shoppingCartRepository.save(cartEntity);
 	}
 
-	private Double calculateTotalPrice(List<ProductEntity> products) {
+	public Double calculateTotalPrice(List<ProductEntity> products) {
 		return products.stream().mapToDouble(ProductEntity::getSub_total_price).sum();
 	}
 

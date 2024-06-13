@@ -1,8 +1,14 @@
 package com.repuestosgaston.shopping_cart.controller;
 
+import static com.repuestosgaston.utils.constants.UserPermissions.VIEW_ADMIN;
+import static com.repuestosgaston.utils.constants.UserPermissions.VIEW_USER;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.repuestosgaston.shopping_cart.controller.dto.RequestAddProductDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.SaleOrderRequestDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.SaleOrderResponseDTO;
 import com.repuestosgaston.shopping_cart.model.SaleOrderEntity;
@@ -34,6 +41,7 @@ public class SaleOrderController {
 		this.saleOrderService = saleOrderService;
 	}
 
+	@PreAuthorize("hasAuthority('"+VIEW_ADMIN+"')")
 	@GetMapping(path = "/")
 	public ResponseEntity<Page<SaleOrderResponseDTO>> getAllOrders(
 			@RequestParam(value = "page", defaultValue = "0") int page,
@@ -49,6 +57,7 @@ public class SaleOrderController {
 		}		
 	}
 	
+	@PreAuthorize("hasAuthority('"+VIEW_ADMIN+"')")
 	@GetMapping(path = "/{orderId}")
 	public ResponseEntity<SaleOrderResponseDTO> getOrderById(@PathVariable(name = "orderId")Long orderId){
 		try {
@@ -59,6 +68,7 @@ public class SaleOrderController {
 		}		
 	}
 	
+	@PreAuthorize("hasAuthority('"+VIEW_ADMIN+"')")
 	@GetMapping(path = "/numberSale/{numberSale}")
 	public ResponseEntity<SaleOrderResponseDTO> getOrderByNumberSale(@PathVariable(name = "numberSale") Integer numberSale){
 		try {
@@ -69,11 +79,12 @@ public class SaleOrderController {
 		}		
 	}
 	
+	@PreAuthorize("hasAuthority('"+VIEW_USER+"')")
 	@PostMapping(path = "/user")
 	public ResponseEntity<SaleOrderResponseDTO> createOrderUser(){
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			SaleOrderResponseDTO saleOrderResponseDTO = saleOrderService.createSaleOrder(username);
+			SaleOrderResponseDTO saleOrderResponseDTO = saleOrderService.createSaleOrderUser(username);
 			return ResponseEntity.status(HttpStatus.CREATED).body(saleOrderResponseDTO);
 		} catch (Exception e) {
 			log.error(String.format("SaleOrderController.createSaleOrder - Failed with message [%s]", e.getMessage()));
@@ -81,11 +92,11 @@ public class SaleOrderController {
 		}		
 	}
 	
+	@PreAuthorize("hasAuthority('"+VIEW_ADMIN+"')")
 	@PostMapping(path = "/admin")
-	public ResponseEntity<SaleOrderResponseDTO> createOrderAdmin(){
+	public ResponseEntity<SaleOrderResponseDTO> createOrderAdmin(@RequestBody List<RequestAddProductDTO> products){
 		try {
-			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			SaleOrderResponseDTO saleOrderResponseDTO = saleOrderService.createSaleOrder(username);
+			SaleOrderResponseDTO saleOrderResponseDTO = saleOrderService.createSaleOrderAdmin(products);
 			return ResponseEntity.status(HttpStatus.CREATED).body(saleOrderResponseDTO);
 		} catch (Exception e) {
 			log.error(String.format("SaleOrderController.createSaleOrder - Failed with message [%s]", e.getMessage()));
