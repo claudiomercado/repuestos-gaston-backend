@@ -1,7 +1,6 @@
 package com.repuestosgaston.users.controller.dto;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

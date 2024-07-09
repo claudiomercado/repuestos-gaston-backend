@@ -49,8 +49,14 @@ public class ProductRequestToProductEntity implements Converter<ProductRequestDT
 	    if (productRequestDTO.getImage() != null) {
 	        productEntity.setImage(productRequestDTO.getImage());   
 	    }
-	    productEntity.setAmount(null);
-		productEntity.setSub_total_price(null);
+	    if(productRequestDTO.getAmount() == null) {
+	    	productEntity.setAmount(0);
+	    }
+	    if(productRequestDTO.getSubTotalPrice() == null) {
+	    	productEntity.setSub_total_price(0.0);
+	    }
+	    
+//		productEntity.setSub_total_price(null);
 		
 		 try {
 	            var product = paymentService.createProduct(productRequestDTO.getName(), productRequestDTO.getDescription());

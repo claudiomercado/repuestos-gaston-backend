@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.repuestosgaston.products.model.ProductEntity;
-import com.repuestosgaston.users.model.UserEntity;
 
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long>{

@@ -27,6 +27,12 @@ public class ProductRequestDTO {
 	@JsonProperty("image")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String image;
+	@JsonProperty("amount")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Integer amount;
+	@JsonProperty("subotalPrice")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Double subTotalPrice;
 	@JsonProperty("id_category")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Long idCategory;

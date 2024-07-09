@@ -9,16 +9,25 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
 import com.repuestosgaston.shopping_cart.service.ShoppingCartService;
+import com.repuestosgaston.users.controller.dto.UserRequestCreateDTO;
 import com.repuestosgaston.users.model.RoleEntity;
 import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.model.enums.RoleEnum;
 import com.repuestosgaston.users.repository.RolRepository;
 import com.repuestosgaston.users.repository.UserRepository;
+import com.repuestosgaston.users.service.RolService;
+import com.repuestosgaston.users.service.UserService;
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.web.filter.CorsFilter;
+
 
 @SpringBootApplication
 public class RepuestosGastonBackendApplication {
@@ -29,36 +38,36 @@ public class RepuestosGastonBackendApplication {
 	}
 	
 	 @Bean
-	    public CommandLineRunner initData(UserRepository userRepository, RolRepository rolRepository,PasswordEncoder passwordEncoder,ShoppingCartService shoppingCartService) {
-	        return args -> {
-	        	UserEntity adminUser = UserEntity.builder()
-	                    .email("admin@gmail.com")
-	                    .username("admin")
-	                    .password(passwordEncoder.encode("admin"))
-	                    .name("Gastón")
-	                    .surname("Mercado")
-	                    .dni("39.393.935")
-	                    .birthdate(LocalDate.parse("1996-05-14"))
-	                    .build();	
-	        	userRepository.save(adminUser);
-	        	
-	        	
-	        	RoleEntity rol = new RoleEntity();
-	        	Set<RoleEntity> roles = new HashSet<>();
-	        	rol.setId((long) 2);
-	        	rol.setName(RoleEnum.ADMIN);
-	        	roles.add(rol);
-	        	adminUser.setRoles(roles);
-	        	adminUser.setCart(shoppingCartService.createShoppingCart());
-	        	/*
-	        	Set<RoleEntity> roles = new HashSet<>();
-	        	roles.add(rol);
-	    		RoleEntity rolEntity = new RoleEntity();*/
-	    		/*roles.add(rolEntity);
-	        	adminUser.setRoles(roles);
-	    		rolRepository.save(rol);
-	    		*/
-	            userRepository.save(adminUser);
+	    public CommandLineRunner initData(UserService userService , UserRepository userRepository, RolService rolService,RolRepository rolRepository,PasswordEncoder passwordEncoder,ShoppingCartService shoppingCartService) {
+		 return args -> {
+			 UserRequestCreateDTO userRequestDTO = UserRequestCreateDTO.builder()
+					 .email("admin@gmail.com")
+	                 .username("admin")
+	                 .password("admin")
+	                 .name("Gastón")
+	                 .surname("Mercado")
+	                 .dni("39.393.935")
+	                 .birthdate(LocalDate.parse("1996-05-14"))
+	                 .build();
+			 userService.createAdmin(userRequestDTO);
+
+//		 return args -> {
+//		        Set<RoleEntity> roles = rolService.createRoleAdmin();
+//		        roles.stream().forEach(x -> rolRepository.save(x));
+//		        
+//		        
+//	        	UserEntity adminUser = UserEntity.builder()
+//	                    .email("admin@gmail.com")
+//	                    .username("admin")
+//	                    .password(passwordEncoder.encode("admin"))
+//	                    .name("Gastón")
+//	                    .surname("Mercado")
+//	                    .dni("39.393.935")
+//	                    .birthdate(LocalDate.parse("1996-05-14"))
+//	                    .cart(shoppingCartService.createShoppingCart())
+//	                    .roles(roles)
+//	                    .build();	
+//	            userRepository.save(adminUser);
 	        };
 	    }
 	
@@ -74,5 +83,5 @@ public class RepuestosGastonBackendApplication {
 			}
 		};
 	}
-
+	
 }

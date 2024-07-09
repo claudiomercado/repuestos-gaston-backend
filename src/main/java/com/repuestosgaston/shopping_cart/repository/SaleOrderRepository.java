@@ -13,5 +13,5 @@ import com.repuestosgaston.shopping_cart.model.SaleOrderEntity;
 public interface SaleOrderRepository extends JpaRepository<SaleOrderEntity, Long>{
 	Page<SaleOrderEntity> findAll(Pageable pageable);
 	
-	Optional<SaleOrderEntity> findByNumberSale(Integer numberSale);
+	Page<SaleOrderEntity> findByNumberSale(Pageable pageable,Integer numberSale);
 }

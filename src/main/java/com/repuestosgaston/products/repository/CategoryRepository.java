@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.repuestosgaston.products.model.CategoryEntity;
-import com.repuestosgaston.products.model.ProductEntity;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>{

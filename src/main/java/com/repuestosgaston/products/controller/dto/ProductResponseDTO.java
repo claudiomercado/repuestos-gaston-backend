@@ -29,4 +29,6 @@ public class ProductResponseDTO {
 	private Integer barCode;
 	@JsonProperty("image")
 	private String image;
+	@JsonProperty("price_id_stripe")
+	private String priceIdStripe;
 }

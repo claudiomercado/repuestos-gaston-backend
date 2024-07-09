@@ -1,5 +1,11 @@
 package com.repuestosgaston.products.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.repuestosgaston.shopping_cart.model.ProductSaleEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -64,8 +71,15 @@ public class ProductEntity {
 	@ManyToOne(fetch = FetchType.EAGER)
 	private CategoryEntity category;
 	
+	@OneToMany(mappedBy = "product")
+	@JsonIgnore
+	private List<ProductSaleEntity> productSales = new ArrayList<>();
+	
 	public void setAmountZero() {
 		amount = 0;
 	}
 	
+	public void setSubTotalPriceZero() {
+		sub_total_price = 0.0;
+	}
 }

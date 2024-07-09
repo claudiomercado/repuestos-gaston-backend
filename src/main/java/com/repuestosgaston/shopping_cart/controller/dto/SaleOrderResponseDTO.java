@@ -1,6 +1,10 @@
 package com.repuestosgaston.shopping_cart.controller.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.repuestosgaston.shopping_cart.converter.ProductSaleResponseDTO;
+import com.repuestosgaston.shopping_cart.model.ProductSaleEntity;
 import com.repuestosgaston.shopping_cart.model.enums.SaleOrderStatusEnum;
 
 import lombok.AllArgsConstructor;
@@ -26,6 +30,6 @@ public class SaleOrderResponseDTO {
 	private String dni;
 	@JsonProperty("sale_status")
 	private SaleOrderStatusEnum saleStatus;
-	@JsonProperty("shopping_cart")
-	private ShoppingCartResponseDTO shoppingCart;
+	@JsonProperty("products")
+	private List<ProductSaleResponseDTO> products;
 }

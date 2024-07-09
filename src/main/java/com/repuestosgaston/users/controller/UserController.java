@@ -19,7 +19,6 @@ import com.repuestosgaston.users.controller.dto.UserRequestCreateDTO;
 import com.repuestosgaston.users.controller.dto.UserRequestUpdateDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseAdminDTO;
 import com.repuestosgaston.users.controller.dto.UserResponseDTO;
-import com.repuestosgaston.users.model.UserEntity;
 import com.repuestosgaston.users.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,12 +51,28 @@ public class UserController {
 	}
 	
 	@GetMapping(path = "/{id}")
-	public ResponseEntity<UserResponseAdminDTO> getUserById(@PathVariable("id") Long userId){
+	public ResponseEntity<Object> getUserById(@PathVariable("id") Long userId){
 		try {
 			return ResponseEntity.ok().body(userService.getUserById(userId));
 		} catch (IllegalArgumentException e) {
 			log.error(String.format("UserController.getUserById - Failed with message [%s]", e.getMessage()));
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}		
+	}
+	
+	@GetMapping(path = "/dni/{dni}")
+	public ResponseEntity<Page<UserResponseAdminDTO>> getUserByDni(
+			@PathVariable("dni") String userDni,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "100") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection){
+		try {
+			return ResponseEntity.ok().body(userService.getUserByDni(userDni,page,
+					size,sort,sortDirection));
+		} catch (Exception e) {
+			log.error(String.format("UserController.getUserByDni - Failed with message [%s]", e.getMessage()));
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}		
 	}
 	
@@ -67,7 +82,7 @@ public class UserController {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
 			return ResponseEntity.ok().body(userService.getUser(username));
 		} catch (IllegalArgumentException e) {
-			log.error(String.format("UserController.getUserById - Failed with message [%s]", e.getMessage()));
+			log.error(String.format("UserController.getUser - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}
@@ -102,7 +117,7 @@ public class UserController {
 			userService.deleteUser(username);
 			return ResponseEntity.status(HttpStatus.OK).build();
 		} catch (IllegalArgumentException e) {
-			log.error(String.format("UserController.deleteUserById - Failed with message [%s]", e.getMessage()));
+			log.error(String.format("UserController.deleteUser - Failed with message [%s]", e.getMessage()));
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}		
 	}

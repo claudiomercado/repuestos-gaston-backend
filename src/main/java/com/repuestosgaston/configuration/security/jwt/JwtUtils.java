@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-//Clase de utilidad para firmar token
 public class JwtUtils {
 		
 	@Value("${jwt.secret.key}")
@@ -27,7 +25,6 @@ public class JwtUtils {
 	@Value("${jwt.time.expiration}")
 	private String timeExpiration;
 
-	//Generar un token
 	public String generateAccesToken(String username,List<String> roles) {
 		return Jwts.builder()
 			   .setSubject(username)
@@ -38,7 +35,6 @@ public class JwtUtils {
 			   .compact();
 	}
 
-	//Validar Token de acceso
 	public boolean isTokenValid(String token) {
 		try {
 			Jwts.parserBuilder()
@@ -52,20 +48,16 @@ public class JwtUtils {
 			return false;
 		}
 	}
-	
-	//Obtener un claim especifico 'Username'
+
 	public String getUsernameFromToken(String token) {
 		return getClaim(token, Claims::getSubject);
 	}
-	
-	//Obtener un solo claim
+
 	public <T> T getClaim(String token, Function<Claims, T> claimsFunction) {
 		Claims claims = extractAllClaims(token);
 		return claimsFunction.apply(claims);
 	}
-	
-	
-	//Obtener todos los claims del token
+
 	public Claims extractAllClaims(String token) {
 		return Jwts.parserBuilder()
 				.setSigningKey(getSignatureKey())
@@ -74,8 +66,6 @@ public class JwtUtils {
 				.getBody();
 	}
 	
-	
-	//Obtener firma del token
 	public Key getSignatureKey() {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		return Keys.hmacShaKeyFor(keyBytes);

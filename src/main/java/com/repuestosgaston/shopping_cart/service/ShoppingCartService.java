@@ -36,14 +36,14 @@ public class ShoppingCartService {
 		this.productRepository = productRepository;
 		this.converterShoppingCartResponse = converterShoppingCartResponse;
 	}
-
+	@Transactional
 	public Page<ShoppingCartResponseDTO> getAllShoppingCart(int page, int size, String sort, String sortDirection) {
 		Sort sorter = Sort.by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
 		Pageable pageable = PageRequest.of(page, size, sorter);
 
 		return shoppingCartRepository.findAll(pageable).map(converterShoppingCartResponse::convert);
 	}
-
+	@Transactional
 	public ShoppingCartResponseDTO getShoppingCartById(String username) {
 		UserEntity user = userRepository.findByUsername(username).get();
 		ShoppingCartEntity shoppingCartEntity = user.getCart();
@@ -52,7 +52,14 @@ public class ShoppingCartService {
 						String.format("Shopping Cart [%s] not found", shoppingCartEntity.getId())));
 
 	}
-
+	@Transactional
+	public ShoppingCartEntity getShoppingCartByIdLong(Long id) {
+		ShoppingCartEntity shoppingCartEntity = shoppingCartRepository.findById(id).get();
+		
+		return shoppingCartEntity;
+	}
+	
+	@Transactional
 	public ShoppingCartEntity createShoppingCart() {
 		ShoppingCartEntity shoppingCartEntity = new ShoppingCartEntity();
 		shoppingCartEntity.setTotalPrice(0.0);

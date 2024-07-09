@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -16,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.repuestosgaston.products.model.ProductEntity;
 import com.repuestosgaston.products.repository.ProductRepository;
-import com.repuestosgaston.shopping_cart.controller.dto.RequestAddProductDTO;
+import com.repuestosgaston.products.service.ProductService;
 import com.repuestosgaston.shopping_cart.controller.dto.SaleOrderRequestDTO;
 import com.repuestosgaston.shopping_cart.controller.dto.SaleOrderResponseDTO;
+import com.repuestosgaston.shopping_cart.controller.dto.SaleOrderStatusRequestDTO;
 import com.repuestosgaston.shopping_cart.converter.SaleOrderEntityToSaleOrderResponseDTO;
+import com.repuestosgaston.shopping_cart.model.ProductSaleEntity;
 import com.repuestosgaston.shopping_cart.model.SaleOrderEntity;
 import com.repuestosgaston.shopping_cart.model.ShoppingCartEntity;
 import com.repuestosgaston.shopping_cart.model.enums.SaleOrderStatusEnum;
@@ -33,6 +34,7 @@ public class SaleOrderService {
 
 	private final SaleOrderEntityToSaleOrderResponseDTO saleOrderEntityToSaleOrderResponseDTO;
 	private final ShoppingCartService shoppingCartService;
+	private final ProductService productService;
 	private final SaleOrderRepository saleOrderRepository;
 	private final ShoppingCartRepository shoppingCartRepository;
 	private final ProductRepository productRepository;
@@ -40,8 +42,9 @@ public class SaleOrderService {
 	
 	private final ModelMapper modelMapper;
 
-	public SaleOrderService(SaleOrderRepository saleOrderRepository, ShoppingCartRepository shoppingCartRepository, ModelMapper modelMapper, SaleOrderEntityToSaleOrderResponseDTO saleOrderEntityToSaleOrderResponseDTO, UserRepository userRepository,ProductRepository productRepository, ShoppingCartService shoppingCartService) {
+	public SaleOrderService(ProductService productService, SaleOrderRepository saleOrderRepository, ShoppingCartRepository shoppingCartRepository, ModelMapper modelMapper, SaleOrderEntityToSaleOrderResponseDTO saleOrderEntityToSaleOrderResponseDTO, UserRepository userRepository,ProductRepository productRepository, ShoppingCartService shoppingCartService) {
 		this.saleOrderRepository = saleOrderRepository;
+		this.productService = productService;
 		this.shoppingCartRepository = shoppingCartRepository;
 		this.shoppingCartService = shoppingCartService;
 		this.userRepository = userRepository;
@@ -69,72 +72,61 @@ public class SaleOrderService {
 	}
 	
 	@Transactional
-	public SaleOrderResponseDTO getOrderByNumberSale(Integer numberSale) {
-		Optional<SaleOrderEntity>  saleOrderEntity = saleOrderRepository.findByNumberSale(numberSale);
-		return saleOrderEntity
-				.map(saleOrderEntityToSaleOrderResponseDTO::convert)
-				.orElseThrow(() -> new IllegalArgumentException(String.format("Shopping Cart [%s] not found", numberSale)));
+	public Page<SaleOrderResponseDTO> getOrderByNumberSale(Integer numberSale, int page,int size,String sort,String sortDirection) {
+		Sort sorter = Sort
+                .by(sortDirection.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort);
+        Pageable pageable = PageRequest.of(page, size, sorter);
+		
+		return saleOrderRepository.findByNumberSale(pageable,numberSale)
+				.map(saleOrderEntityToSaleOrderResponseDTO::convert);
 	}
 
 	@Transactional
-	public SaleOrderResponseDTO createSaleOrderUser(String username) {
-		UserEntity user = userRepository.findByUsername(username).get();
-		ShoppingCartEntity shoppingCartEntity = user.getCart();
-		SaleOrderEntity saleOrderEntity = createOder(shoppingCartEntity); 
-		saleOrderRepository.save(saleOrderEntity);
-		SaleOrderResponseDTO saleOrderResponseDTO = saleOrderEntityToSaleOrderResponseDTO.convert(saleOrderEntity);
-		
-		return saleOrderResponseDTO;
-	}
+	public SaleOrderResponseDTO createSaleOrder(String username) {
+		UserEntity userEntity = userRepository.findByUsername(username)
+	            .orElseThrow(() -> new IllegalArgumentException(String.format("User [%s] not found", username)));
 
-	public SaleOrderEntity createOder(ShoppingCartEntity shoppingCartEntity) {
-		SaleOrderEntity saleOrderEntity = new SaleOrderEntity();
-		
-		saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.PENDING_PAYMENT);
-		saleOrderEntity.setShoppingCart(shoppingCartEntity);
-		saleOrderEntity.setNumberSale(generateNumberSale(1000000000,2147483647));
-		return saleOrderEntity;
-	}
-	
-	@Transactional
-	public SaleOrderResponseDTO createSaleOrderAdmin(List<RequestAddProductDTO> productsRequest) {
-		ShoppingCartEntity shoppingCartEntity = new ShoppingCartEntity();
-		
-		List<ProductEntity> products = getListProducts(productsRequest);
-		
-		Integer numberCart = shoppingCartService.generateNumberSale(10000,99999);
-		Double totalPriceCart = calculateTotalPrice(products);
-		
-		shoppingCartEntity.setProducts(products);
-		shoppingCartEntity.setNumberCart(numberCart);
-		shoppingCartEntity.setTotalPrice(totalPriceCart);
-		
-		SaleOrderEntity saleOrderEntity = createOder(shoppingCartEntity); 
-		saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.PAID);
-		shoppingCartRepository.save(shoppingCartEntity);
-		saleOrderRepository.save(saleOrderEntity);
-		
-		SaleOrderResponseDTO saleOrderResponseDTO = saleOrderEntityToSaleOrderResponseDTO.convert(saleOrderEntity);
-		
-		return saleOrderResponseDTO;
-	}
-	
-	public List<ProductEntity> getListProducts(List<RequestAddProductDTO> productsRequest){
-		List<ProductEntity> products = new ArrayList<>();
-		
-		for (RequestAddProductDTO productRequest : productsRequest) {
-				Optional<ProductEntity> product = productRepository.findById(productRequest.getIdProduct());
-				products.add(product.get());
-				product.get().setAmountZero();
-				int newStock = product.get().getStock() - productRequest.getAmount();
-				double subTotalPrice = product.get().getPrice() * productRequest.getAmount();
-				product.get().setStock(newStock);
-				product.get().setSub_total_price(subTotalPrice);
-				product.get().setAmount(productRequest.getAmount());
-				productRepository.save(product.get());
+	    ShoppingCartEntity shoppingCartEntity = shoppingCartService.getShoppingCartByIdLong(userEntity.getCart().getId());
+	    
+	    SaleOrderEntity saleOrderEntity = buildOrderSale(shoppingCartEntity);
+	    saleOrderEntity.setDni(userEntity.getDni());
+	    saleOrderEntity.setName(userEntity.getName());
+	    saleOrderEntity.setSurname(userEntity.getSurname());
+	    saleOrderEntity.setNumberSale(generateNumberSale(1000000000,2147483647));
+	    if (userEntity.getUsername().equals("admin")) {
+	    	saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.DELIVERED);
+		}else {
+			saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.PAID);
 		}
+	    	    saleOrderRepository.save(saleOrderEntity);
+
+	    // Vaciar carrito
+	    shoppingCartEntity.getProducts().clear();
+	    shoppingCartRepository.save(shoppingCartEntity);
+
+	    SaleOrderResponseDTO saleOrderResponseDTO = saleOrderEntityToSaleOrderResponseDTO.convert(saleOrderEntity);
+	    return saleOrderResponseDTO;
+	}
+	
+	private SaleOrderEntity buildOrderSale(ShoppingCartEntity shoppingCartEntity) {
+		SaleOrderEntity saleOrderEntity = new SaleOrderEntity();
+		List<ProductSaleEntity> products = new ArrayList<>();
 		
-		return products;
+		for (ProductEntity product : shoppingCartEntity.getProducts()) {
+	        ProductSaleEntity productSale = new ProductSaleEntity();
+	        productSale.setSaleOrder(saleOrderEntity);
+	        productSale.setProduct(product);
+	        productSale.setQuantity(product.getAmount());
+	        productSale.setSubTotalPrice(product.getPrice() * product.getAmount());
+	        products.add(productSale);
+	        // Actualiza el stock del producto
+	        product.setStock(product.getStock() - product.getAmount());
+	        product.setAmountZero();
+	        product.setSubTotalPriceZero();
+	        productRepository.save(product);
+	    }
+		saleOrderEntity.setProductSale(products);
+		return saleOrderEntity;
 	}
 	
 	public Integer generateNumberSale(int min, int max) {
@@ -162,18 +154,21 @@ public class SaleOrderService {
 	}
 
 	@Transactional
-	public SaleOrderEntity updateSaleOrderStatus(Long orderId, String status) {
+	public SaleOrderEntity updateSaleOrderStatus(Long orderId, SaleOrderStatusRequestDTO status) {
 		SaleOrderEntity saleOrderEntity = saleOrderRepository.findById(orderId).get();
 		parseStatus(saleOrderEntity, status);
 		return saleOrderRepository.save(saleOrderEntity);
 	}
 
-	public void parseStatus(SaleOrderEntity saleOrderEntity, String status) {
-		if (status.equals(SaleOrderStatusEnum.PAID.getName())) {
+	public void parseStatus(SaleOrderEntity saleOrderEntity, SaleOrderStatusRequestDTO status) {
+		saleOrderEntity.setSaleStatus(status.getSaleStatus());
+		/*if (status.equals(SaleOrderStatusEnum.PAID.getName())) {
 			saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.PAID);
 		} else if(status.equals(SaleOrderStatusEnum.REJECTED.getName())){
 			saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.REJECTED);
-		}
+		} else if(status.equals(SaleOrderStatusEnum.DELIVERED.getName())) {
+			saleOrderEntity.setSaleStatus(SaleOrderStatusEnum.DELIVERED);
+		}*/
 	}
 	
 	public Double calculateTotalPrice(List<ProductEntity> products) {

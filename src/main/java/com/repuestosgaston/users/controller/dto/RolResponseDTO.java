@@ -1,7 +1,6 @@
 package com.repuestosgaston.users.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.repuestosgaston.users.model.enums.RoleEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
